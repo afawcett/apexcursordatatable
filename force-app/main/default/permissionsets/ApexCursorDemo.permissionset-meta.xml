@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Permission set for Apex Cursor Demo - provides access to the demo app and page</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Apex Cursor Demo</label>
+    <applicationVisibilities>
+        <application>ApexCursorDemo</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <tabSettings>
+        <tab>InfiniteLoading</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Account</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <classAccesses>
+        <apexClass>ApexCursorDemoController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>    
+</PermissionSet> 

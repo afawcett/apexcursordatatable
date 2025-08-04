@@ -1,0 +1,26 @@
+# Salesforce DX Project .gitignore
+
+# Salesforce CLI
+.sf/
+.sfdx/
+
+# Scratch org files
+*.org
+*.scratchorg
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+debug.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak 
