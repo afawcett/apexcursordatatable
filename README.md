@@ -1,6 +1,6 @@
 # Apex Cursor Demo with Lightning Data Table Infinite Scrolling
 
-This project demonstrates the new beta Apex Cursors feature working with Lightning Web Components and the Lightning Data Table's infinite scrolling capability.
+This project demonstrates the new beta Apex Cursors feature working with Lightning Web Components and the Lightning Data Table's infinite scrolling capability. You can read more about this in my blog [here](https://andyinthecloud.com/2025/08/04/infinite-data-scrolling-with-apex-cursors-beta/).
 
 ## 🎯 Demo Overview
 
