@@ -8,6 +8,7 @@ export default class ApexCursorDemo extends LightningElement {
     hasMore = false;
     totalRecords = 0;
     isLoading = false;
+    cursor = null;
 
     connectedCallback() {
         this.onLoadMoreRecords();
@@ -18,8 +19,13 @@ export default class ApexCursorDemo extends LightningElement {
             return;
         this.isLoading = true;
         try {                
-            const result = await loadMoreRecords({offset: this.offset, batchSize: 50});
+            const result = await loadMoreRecords({
+                cursor: this.cursor, 
+                offset: this.offset, 
+                batchSize: 50
+            });
             this.records = [...this.records, ...result.records];
+            this.cursor = result.cursor;
             this.offset = result.offset;
             this.hasMore = result.hasMore;
             this.totalRecords = result.totalRecords;            

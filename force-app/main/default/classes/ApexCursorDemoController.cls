@@ -1,14 +1,13 @@
 public with sharing class ApexCursorDemoController {
     
     @AuraEnabled(cacheable=false)
-    public static LoadMoreRecordsResult loadMoreRecords(Integer offset, Integer batchSize) {
+    public static LoadMoreRecordsResult loadMoreRecords(Database.Cursor cursor, Integer offset, Integer batchSize) {
         try {
-            Database.Cursor cursor = (Database.Cursor) Cache.Session.get('allaccounts');
             if(cursor == null) {
                 cursor = Database.getCursor('SELECT Id, Name, Industry, Type, BillingCity, Phone FROM Account WHERE Name LIKE \'TEST%\' ORDER BY Name', AccessLevel.USER_MODE);
-                Cache.Session.put('allaccounts', cursor);
             }            
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
+            result.cursor = cursor;
             result.records = cursor.fetch(offset, batchSize);
             result.offset = offset + batchSize;
             result.totalRecords = cursor.getNumRecords();
@@ -21,6 +20,7 @@ public with sharing class ApexCursorDemoController {
     }
     
     public class LoadMoreRecordsResult {
+        @AuraEnabled public Database.Cursor cursor;
         @AuraEnabled public List<Account> records;
         @AuraEnabled public Integer offset;
         @AuraEnabled public Boolean hasMore;
