@@ -103,6 +103,11 @@ lightning-card {
         0 0 60px rgba(0, 123, 255, 0.2);
 }
 
+/* Checkbox container padding */
+.checkbox-container {
+    padding-left: 1rem;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .infinite-symbol {

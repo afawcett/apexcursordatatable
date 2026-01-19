@@ -1,5 +1,13 @@
 <template>
     <lightning-card title="Infinite Loading" icon-name="standard:account">
+        <div class="slds-m-bottom_medium checkbox-container">
+            <lightning-input
+                type="checkbox"
+                label="Use Pagination Cursors"
+                checked={usePaginationCursors}
+                onchange={handlePaginationModeChange}>
+            </lightning-input>
+        </div>
         <div class="datatable-container" style="height:300px;">
             <lightning-datatable
                 key-field="Id"
@@ -27,6 +35,10 @@
             <p>Loaded Records: {records.length}</p>
             <p>Total Records: {totalRecords}</p>
             <p>Has More: {hasMore}</p>
+            <p>Cursor Type: {cursorTypeLabel}</p>
+            <template if:true={usePaginationCursors}>
+                <p>Deleted Rows Skipped: {deletedRows}</p>
+            </template>
         </div>
     </lightning-card>
 </template>

@@ -1,5 +1,6 @@
 import { LightningElement } from 'lwc';
 import loadMoreRecords from '@salesforce/apex/ApexCursorDemoController.loadMoreRecords';
+import loadMoreRecordsWithPagination from '@salesforce/apex/ApexCursorDemoController.loadMoreRecordsWithPagination';
 
 export default class ApexCursorDemo extends LightningElement {
 
@@ -9,8 +10,33 @@ export default class ApexCursorDemo extends LightningElement {
     totalRecords = 0;
     isLoading = false;
     cursor = null;
+    paginationCursor = null;
+    usePaginationCursors = true;
+    deletedRows = 0;
 
     connectedCallback() {
+        this.onLoadMoreRecords();
+    }
+
+    handlePaginationModeChange(event) {
+        const newValue = event.target.checked;
+        if (this.usePaginationCursors !== newValue) {
+            this.usePaginationCursors = newValue;
+            this.resetAndReload();
+        }
+    }
+
+    resetAndReload() {
+        // Reset all state
+        this.records = [];
+        this.offset = 0;
+        this.cursor = null;
+        this.paginationCursor = null;
+        this.hasMore = false;
+        this.totalRecords = 0;
+        this.deletedRows = 0;
+        this.error = null;
+        // Reload from first page
         this.onLoadMoreRecords();
     }
 
@@ -18,14 +44,28 @@ export default class ApexCursorDemo extends LightningElement {
         if(this.isLoading) 
             return;
         this.isLoading = true;
-        try {                
-            const result = await loadMoreRecords({
-                cursor: this.cursor, 
-                offset: this.offset, 
-                batchSize: 50
-            });
+        try {
+            let result;
+            if (this.usePaginationCursors) {
+                // Use pagination cursor method
+                result = await loadMoreRecordsWithPagination({
+                    paginationCursor: this.paginationCursor,
+                    start: this.offset,
+                    pageSize: 50
+                });
+                this.paginationCursor = result.paginationCursor;
+                this.deletedRows = result.deletedRows || 0;
+            } else {
+                // Use standard cursor method
+                result = await loadMoreRecords({
+                    cursor: this.cursor, 
+                    offset: this.offset, 
+                    batchSize: 50
+                });
+                this.cursor = result.cursor;
+            }
+            
             this.records = [...this.records, ...result.records];
-            this.cursor = result.cursor;
             this.offset = result.offset;
             this.hasMore = result.hasMore;
             this.totalRecords = result.totalRecords;            
@@ -36,6 +76,10 @@ export default class ApexCursorDemo extends LightningElement {
         } finally {
             this.isLoading = false;
         }
+    }
+
+    get cursorTypeLabel() {
+        return this.usePaginationCursors ? 'Pagination Cursor' : 'Standard Cursor';
     }
 
     columns = [
