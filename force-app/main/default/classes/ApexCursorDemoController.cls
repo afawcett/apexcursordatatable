@@ -8,7 +8,7 @@ public with sharing class ApexCursorDemoController {
             }            
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
             result.cursor = cursor;
-            result.records = cursor.fetch(offset, batchSize);
+            result.records = cursor.fetch(offset, Math.min(batchSize, cursor.getNumRecords() - offset));
             result.offset = offset + result.records.size(); // Update offset based on actual number of records fetched
             result.totalRecords = cursor.getNumRecords();
             result.hasMore = result.offset < result.totalRecords;
@@ -26,7 +26,7 @@ public with sharing class ApexCursorDemoController {
             }
                         
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
-            Database.CursorFetchResult fetchResult = paginationCursor.fetchPage(start, pageSize);
+            Database.CursorFetchResult fetchResult = paginationCursor.fetchPage(start, Math.min(pageSize, paginationCursor.getNumRecords() - start));
             result.paginationCursor = paginationCursor;
             result.records = fetchResult.getRecords();
             result.offset = fetchResult.getNextIndex();
