@@ -1,116 +1,92 @@
-/* Starry Background Animation */
-.stars {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
+:host {
+    --apex-cursor-demo-datatable-height: 18.75rem;
+    --apex-cursor-demo-symbol-size: 7.5rem;
+    --apex-cursor-demo-symbol-size-mobile: 5rem;
+    --apex-cursor-demo-symbol-color: var(--slds-g-color-on-accent-1, #ffffff);
+    --apex-cursor-demo-accent-color: var(--slds-g-color-brand-base-50, #007bff);
+    --apex-cursor-demo-card-bg: var(--slds-g-color-surface-1, rgba(255, 255, 255, 0.95));
+    --apex-cursor-demo-card-radius: var(--slds-g-radius-border-2, 0.625rem);
+    --apex-cursor-demo-glow-sm: 1.25rem;
+    --apex-cursor-demo-glow-md: 2.5rem;
+    --apex-cursor-demo-glow-lg: 3.75rem;
+    --apex-cursor-demo-glow-xl: 5rem;
+    --apex-cursor-demo-glow-xxl: 6.25rem;
+    --apex-cursor-demo-glow-xxxl: 7.5rem;
+    --apex-cursor-demo-shadow-y: 1.25rem;
+    --apex-cursor-demo-shadow-blur: 2.5rem;
+    --apex-cursor-demo-shadow-color: rgba(0, 0, 0, 0.3);
+    --apex-cursor-demo-shadow-accent: rgba(0, 123, 255, 0.2);
+    --apex-cursor-demo-opacity-dim: 0.8;
+    --apex-cursor-demo-opacity-full: 1;
+    --apex-cursor-demo-scale-base: 1;
+    --apex-cursor-demo-scale-emphasis: 1.1;
+    --apex-cursor-demo-z-overlay: 10;
+    --apex-cursor-demo-breakpoint-mobile: 48rem;
 }
 
-.star {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    animation: twinkle 3s infinite;
-}
-
-.star:nth-child(1) { top: 10%; left: 10%; width: 2px; height: 2px; animation-delay: 0s; }
-.star:nth-child(2) { top: 20%; left: 80%; width: 1px; height: 1px; animation-delay: 0.5s; }
-.star:nth-child(3) { top: 30%; left: 20%; width: 3px; height: 3px; animation-delay: 1s; }
-.star:nth-child(4) { top: 40%; left: 70%; width: 2px; height: 2px; animation-delay: 1.5s; }
-.star:nth-child(5) { top: 50%; left: 15%; width: 1px; height: 1px; animation-delay: 2s; }
-.star:nth-child(6) { top: 60%; left: 85%; width: 2px; height: 2px; animation-delay: 2.5s; }
-.star:nth-child(7) { top: 70%; left: 25%; width: 1px; height: 1px; animation-delay: 0.3s; }
-.star:nth-child(8) { top: 80%; left: 75%; width: 3px; height: 3px; animation-delay: 0.8s; }
-.star:nth-child(9) { top: 90%; left: 35%; width: 2px; height: 2px; animation-delay: 1.3s; }
-.star:nth-child(10) { top: 15%; left: 60%; width: 1px; height: 1px; animation-delay: 1.8s; }
-.star:nth-child(11) { top: 25%; left: 40%; width: 2px; height: 2px; animation-delay: 2.3s; }
-.star:nth-child(12) { top: 35%; left: 90%; width: 1px; height: 1px; animation-delay: 0.7s; }
-.star:nth-child(13) { top: 45%; left: 5%; width: 3px; height: 3px; animation-delay: 1.2s; }
-.star:nth-child(14) { top: 55%; left: 95%; width: 2px; height: 2px; animation-delay: 1.7s; }
-.star:nth-child(15) { top: 65%; left: 50%; width: 1px; height: 1px; animation-delay: 2.2s; }
-.star:nth-child(16) { top: 75%; left: 30%; width: 2px; height: 2px; animation-delay: 0.4s; }
-.star:nth-child(17) { top: 85%; left: 65%; width: 1px; height: 1px; animation-delay: 0.9s; }
-.star:nth-child(18) { top: 95%; left: 45%; width: 3px; height: 3px; animation-delay: 1.4s; }
-.star:nth-child(19) { top: 5%; left: 25%; width: 2px; height: 2px; animation-delay: 1.9s; }
-.star:nth-child(20) { top: 45%; left: 55%; width: 1px; height: 1px; animation-delay: 2.4s; }
-
-@keyframes twinkle {
-    0%, 100% { opacity: 0.3; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
-}
-
-/* Main container styling */
 .datatable-container {
-    position: relative;
     overflow: visible;
 }
 
-/* Infinite Symbol Overlay */
+.datatable-height {
+    height: var(--apex-cursor-demo-datatable-height);
+}
+
 .infinite-symbol {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 120px;
-    color: #ffffff;
-    font-weight: bold;
+    inset: 0;
+    margin: auto;
+    width: max-content;
+    height: max-content;
+    font-size: var(--apex-cursor-demo-symbol-size);
+    color: var(--apex-cursor-demo-symbol-color);
+    font-weight: var(--slds-g-font-weight-bold, 700);
     pointer-events: none;
-    z-index: 10;
-    text-shadow: 
-        0 0 20px #ffffff,
-        0 0 40px #ffffff,
-        0 0 60px #ffffff,
-        0 0 80px #007bff,
-        0 0 100px #007bff,
-        0 0 120px #007bff;
+    z-index: var(--apex-cursor-demo-z-overlay);
+    text-shadow:
+        0 0 var(--apex-cursor-demo-glow-sm) var(--apex-cursor-demo-symbol-color),
+        0 0 var(--apex-cursor-demo-glow-md) var(--apex-cursor-demo-symbol-color),
+        0 0 var(--apex-cursor-demo-glow-lg) var(--apex-cursor-demo-symbol-color),
+        0 0 var(--apex-cursor-demo-glow-xl) var(--apex-cursor-demo-accent-color),
+        0 0 var(--apex-cursor-demo-glow-xxl) var(--apex-cursor-demo-accent-color),
+        0 0 var(--apex-cursor-demo-glow-xxxl) var(--apex-cursor-demo-accent-color);
     animation: glow 3s ease-in-out infinite;
 }
 
 @keyframes glow {
-    0%, 100% { 
-        opacity: 0.8; 
-        transform: translate(-50%, -50%) scale(1);
-        text-shadow: 
-            0 0 20px #ffffff,
-            0 0 40px #ffffff,
-            0 0 60px #ffffff,
-            0 0 80px #007bff,
-            0 0 100px #007bff,
-            0 0 120px #007bff;
+    0%, 100% {
+        opacity: var(--apex-cursor-demo-opacity-dim);
+        transform: scale(var(--apex-cursor-demo-scale-base));
+        text-shadow:
+            0 0 var(--apex-cursor-demo-glow-sm) var(--apex-cursor-demo-symbol-color),
+            0 0 var(--apex-cursor-demo-glow-md) var(--apex-cursor-demo-symbol-color),
+            0 0 var(--apex-cursor-demo-glow-lg) var(--apex-cursor-demo-symbol-color),
+            0 0 var(--apex-cursor-demo-glow-xl) var(--apex-cursor-demo-accent-color),
+            0 0 var(--apex-cursor-demo-glow-xxl) var(--apex-cursor-demo-accent-color),
+            0 0 var(--apex-cursor-demo-glow-xxxl) var(--apex-cursor-demo-accent-color);
     }
-    50% { 
-        opacity: 1; 
-        transform: translate(-50%, -50%) scale(1.1);
-        text-shadow: 
-            0 0 30px #ffffff,
-            0 0 60px #ffffff,
-            0 0 90px #ffffff,
-            0 0 120px #007bff,
-            0 0 150px #007bff,
-            0 0 180px #007bff;
+    50% {
+        opacity: var(--apex-cursor-demo-opacity-full);
+        transform: scale(var(--apex-cursor-demo-scale-emphasis));
+        text-shadow:
+            0 0 1.875rem var(--apex-cursor-demo-symbol-color),
+            0 0 var(--apex-cursor-demo-glow-lg) var(--apex-cursor-demo-symbol-color),
+            0 0 5.625rem var(--apex-cursor-demo-symbol-color),
+            0 0 var(--apex-cursor-demo-glow-xxl) var(--apex-cursor-demo-accent-color),
+            0 0 9.375rem var(--apex-cursor-demo-accent-color),
+            0 0 11.25rem var(--apex-cursor-demo-accent-color);
     }
 }
 
-/* Enhanced card styling */
 lightning-card {
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 10px;
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.3),
-        0 0 60px rgba(0, 123, 255, 0.2);
+    background: var(--apex-cursor-demo-card-bg);
+    border-radius: var(--apex-cursor-demo-card-radius);
+    box-shadow:
+        0 var(--apex-cursor-demo-shadow-y) var(--apex-cursor-demo-shadow-blur) var(--apex-cursor-demo-shadow-color),
+        0 0 var(--apex-cursor-demo-glow-lg) var(--apex-cursor-demo-shadow-accent);
 }
 
-/* Checkbox container padding */
-.checkbox-container {
-    padding-left: 1rem;
-}
-
-/* Responsive design */
 @media (max-width: 768px) {
     .infinite-symbol {
-        font-size: 80px;
+        font-size: var(--apex-cursor-demo-symbol-size-mobile);
     }
-} 
+}

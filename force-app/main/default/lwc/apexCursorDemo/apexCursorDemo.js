@@ -2,17 +2,55 @@ import { LightningElement } from 'lwc';
 import loadMoreRecords from '@salesforce/apex/ApexCursorDemoController.loadMoreRecords';
 import loadMoreRecordsWithPagination from '@salesforce/apex/ApexCursorDemoController.loadMoreRecordsWithPagination';
 
+const COLUMNS = [
+    {
+        fieldName: 'Name',
+        initialWidth: 300,
+        label: 'Account Name',
+        type: 'text'
+    },
+    {
+        fieldName: 'Industry',
+        initialWidth: 150,
+        label: 'Industry',
+        type: 'text'
+    },
+    {
+        fieldName: 'Type',
+        initialWidth: 120,
+        label: 'Type',
+        type: 'text'
+    },
+    {
+        fieldName: 'BillingCity',
+        initialWidth: 150,
+        label: 'Billing City',
+        type: 'text'
+    },
+    {
+        fieldName: 'Phone',
+        initialWidth: 140,
+        label: 'Phone',
+        type: 'phone'
+    }
+    ],
+    INITIAL_DELETED_ROWS = 0,
+    INITIAL_OFFSET = 0,
+    INITIAL_TOTAL = 0,
+    PAGE_SIZE = 50;
+
 export default class ApexCursorDemo extends LightningElement {
 
     records = [];
-    offset = 0;
+    offset = INITIAL_OFFSET;
     hasMore = false;
-    totalRecords = 0;
+    totalRecords = INITIAL_TOTAL;
     isLoading = false;
     cursor = null;
     paginationCursor = null;
     usePaginationCursors = true;
-    deletedRows = 0;
+    deletedRows = INITIAL_DELETED_ROWS;
+    columns = COLUMNS;
 
     connectedCallback() {
         this.onLoadMoreRecords();
@@ -27,91 +65,69 @@ export default class ApexCursorDemo extends LightningElement {
     }
 
     resetAndReload() {
-        // Reset all state
         this.records = [];
-        this.offset = 0;
+        this.offset = INITIAL_OFFSET;
         this.cursor = null;
         this.paginationCursor = null;
         this.hasMore = false;
-        this.totalRecords = 0;
-        this.deletedRows = 0;
+        this.totalRecords = INITIAL_TOTAL;
+        this.deletedRows = INITIAL_DELETED_ROWS;
         this.error = null;
-        // Reload from first page
         this.onLoadMoreRecords();
     }
 
     async onLoadMoreRecords() {
-        if(this.isLoading) 
+        if (this.isLoading) {
             return;
+        }
         this.isLoading = true;
         try {
-            let result;
-            if (this.usePaginationCursors) {
-                // Use pagination cursor method
-                result = await loadMoreRecordsWithPagination({
-                    paginationCursor: this.paginationCursor,
-                    start: this.offset,
-                    pageSize: 50
-                });
-                this.paginationCursor = result.paginationCursor;
-                this.deletedRows = result.deletedRows || 0;
-            } else {
-                // Use standard cursor method
-                result = await loadMoreRecords({
-                    cursor: this.cursor, 
-                    offset: this.offset, 
-                    batchSize: 50
-                });
-                this.cursor = result.cursor;
-            }
-            
-            this.records = [...this.records, ...result.records];
-            this.offset = result.offset;
-            this.hasMore = result.hasMore;
-            this.totalRecords = result.totalRecords;            
+            const result = await this.fetchNextPage();
+            this.applyLoadResult(result);
         } catch (error) {
-            console.error('Error fetching next records:', error);
-            this.error = error.body?.message || error.message || 'Unknown error occurred';
-            this.hasMore = false;
+            this.handleLoadError(error);
         } finally {
             this.isLoading = false;
         }
     }
 
-    get cursorTypeLabel() {
-        return this.usePaginationCursors ? 'Pagination Cursor' : 'Standard Cursor';
+    fetchNextPage() {
+        if (this.usePaginationCursors) {
+            return loadMoreRecordsWithPagination({
+                pageSize: PAGE_SIZE,
+                paginationCursor: this.paginationCursor,
+                start: this.offset
+            });
+        }
+        return loadMoreRecords({
+            batchSize: PAGE_SIZE,
+            cursor: this.cursor,
+            offset: this.offset
+        });
     }
 
-    columns = [
-        {
-            label: 'Account Name',
-            fieldName: 'Name',
-            type: 'text',
-            initialWidth: 300
-        },
-        {
-            label: 'Industry',
-            fieldName: 'Industry',
-            type: 'text',
-            initialWidth: 150
-        },
-        {
-            label: 'Type',
-            fieldName: 'Type',
-            type: 'text',
-            initialWidth: 120
-        },
-        {
-            label: 'Billing City',
-            fieldName: 'BillingCity',
-            type: 'text',
-            initialWidth: 150
-        },
-        {
-            label: 'Phone',
-            fieldName: 'Phone',
-            type: 'phone',
-            initialWidth: 140
+    applyLoadResult(result) {
+        if (this.usePaginationCursors) {
+            this.paginationCursor = result.paginationCursor;
+            this.deletedRows = result.deletedRows || INITIAL_DELETED_ROWS;
+        } else {
+            this.cursor = result.cursor;
         }
-    ];
+        this.records = [...this.records, ...result.records];
+        this.offset = result.offset;
+        this.hasMore = result.hasMore;
+        this.totalRecords = result.totalRecords;
+    }
+
+    handleLoadError(error) {
+        this.error = error.body?.message || error.message || 'Unknown error occurred';
+        this.hasMore = false;
+    }
+
+    get cursorTypeLabel() {
+        if (this.usePaginationCursors) {
+            return 'Pagination Cursor';
+        }
+        return 'Standard Cursor';
+    }
 }
