@@ -122,4 +122,48 @@ apexcursordatatable/
 sf org delete scratch --target-org apex-cursor-demo
 ```
 
+## Pagination Cursor behavior tests
+
+This section describes the investigation and Apex tests in `PaginationCursorBugTest.cls`, motivated by [blog comments](https://andyinthecloud.com/2026/01/19/improved-infinite-data-scrolling-with-new-apex-pagination-cursors-ga/) on partial last pages and records deleted while a cursor is in use.
+
+### Why we ran these tests
+
+Community feedback reported that `PaginationCursor.fetchPage(start, pageSize)` throws when `(start + pageSize)` exceeds `getNumRecords()`—for example, with 5,003 records and page size 50, the last 3 records are never returned. The [Apex Cursors documentation](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_cursors.htm) describes skipping deleted rows and returning a partial final page when the cursor reaches the end before `pageSize`. We wanted to see whether the platform matches that documentation or enforces a strict bound that callers must satisfy.
+
+### What we tested
+
+Tests use **53 Account records** and **page size 50** so the last page has only 3 rows. Each scenario has two methods side by side: one uses raw `PAGE_SIZE` for the last fetch; the variant caps the request with `Math.min(PAGE_SIZE, cursor.getNumRecords() - start)`.
+
+| Scenario | Without cap (expects doc behavior) | With cap (DX workaround) |
+|----------|-----------------------------------|---------------------------|
+| **Partial last page** | `fetchPagePartialLastPageReturnsRemainingRecordsPerDocs` — `fetchPage(50, 50)` | `fetchPagePartialLastPageReturnsRemainingRecordsPerDocsVariant` — `fetchPage(50, 3)` |
+| **After deletes** | `fetchPageAfterRecordsDeletedSkipsDeletedAndReturnsPagePerDocs` — first 10 rows deleted, then `fetchPage(50, 50)` | `fetchPageAfterRecordsDeletedSkipsDeletedAndReturnsPagePerDocsVariant` — same setup, capped page size |
+
+There is also a standalone script `apex/ReproducePaginationCursorBug.apex` that reproduces the throw in anonymous Apex.
+
+### Results
+
+| Test | Outcome | Notes |
+|------|---------|--------|
+| Partial last page (uncapped) | **Fail** | `InvalidParameterValueException: Fetch beyond bound detected: 100` |
+| Partial last page (variant) | **Pass** | Capped `fetchPage(50, 3)` returns 3 records |
+| After deletes (uncapped) | **Fail** | Same exception |
+| After deletes (variant) | **Pass** | Capped `fetchPage(50, 3)` returns 3 records |
+
+**Interpretation:** The platform requires `start + pageSize <= getNumRecords()`. It does not return a partial or empty final page when that inequality would be violated; it throws instead. The documentation example (`fetchPage(0, 20)` after deleting rows 0–4) stays within bounds because `0 + 20 <= 100`. Callers who need the last few rows must cap page size themselves:
+
+```apex
+Integer pageSizeForLastPage = Math.min(pageSize, cursor.getNumRecords() - start);
+cursor.fetchPage(start, pageSizeForLastPage);
+```
+
+Whether that is a product bug or a documentation/DX gap is a matter for Salesforce; these tests document current behavior and a working workaround.
+
+### Run the tests
+
+```bash
+sf project deploy start
+sf apex run test -n PaginationCursorBugTest -l RunSpecifiedTests -r human -w 10
+```
+
 
