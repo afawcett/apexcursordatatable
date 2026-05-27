@@ -21,6 +21,7 @@ Thumbs.db
 debug.log
 
 # Temporary files
+.tmp/
 *.tmp
 *.temp
-*.bak 
+*.bak

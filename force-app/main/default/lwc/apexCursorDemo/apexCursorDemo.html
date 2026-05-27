@@ -1,11 +1,19 @@
 <template>
     <lightning-card title="Infinite Loading" icon-name="standard:account">
         <div class="slds-var-m-bottom_medium slds-var-p-left_medium">
+            <lightning-radio-group
+                label="Cursor Type"
+                variant="label-hidden"
+                options={cursorTypeOptions}
+                value={cursorType}
+                type="button"
+                onchange={handleCursorTypeChange}>
+            </lightning-radio-group>
             <lightning-input
                 type="checkbox"
-                label="Use Pagination Cursors"
-                checked={usePaginationCursors}
-                onchange={handlePaginationModeChange}>
+                label="Use Session Cache"
+                checked={useSessionCache}
+                onchange={handleSessionCacheChange}>
             </lightning-input>
         </div>
         <div class="datatable-container slds-is-relative datatable-height">
@@ -29,15 +37,40 @@
                 <h2>{error}</h2>
             </div>
         </template>
-        <div class="slds-box slds-theme_info slds-var-m-top_medium">
-            <h4 class="slds-text-heading_small">Debug Info:</h4>
-            <p>Loaded Records: {records.length}</p>
-            <p>Total Records: {totalRecords}</p>
-            <p>Has More: {hasMore}</p>
-            <p>Cursor Type: {cursorTypeLabel}</p>
-            <template if:true={usePaginationCursors}>
-                <p>Deleted Rows Skipped: {deletedRows}</p>
-            </template>
+        <div class="slds-grid slds-gutters slds-wrap info-panels slds-var-m-top_medium slds-var-p-horizontal_medium slds-var-p-bottom_medium">
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-box slds-theme_info info-panel">
+                    <h4 class="slds-text-heading_small slds-var-m-bottom_x-small">Debug Info</h4>
+                    <p>Loaded Records: {records.length}</p>
+                    <p>Total Records: {totalRecords}</p>
+                    <p>Has More: {hasMore}</p>
+                    <p>Cursor Type: {cursorTypeLabel}</p>
+                    <p>Using Session Cache: {usingSessionCache}</p>
+                    <template if:true={usePaginationCursors}>
+                        <p>Deleted Rows Skipped: {deletedRows}</p>
+                    </template>
+                </div>
+            </div>
+            <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                <div class="slds-box slds-theme_shade info-panel">
+                    <h4 class="slds-text-heading_small slds-var-m-bottom_x-small">Limits Info</h4>
+                    <template if:true={limitsInfo}>
+                        <p class="slds-text-title_caps slds-var-m-top_x-small">Transaction</p>
+                        <p>Standard Cursors: {standardCursorsLabel}</p>
+                        <p>Standard Cursor Rows: {standardCursorRowsLabel}</p>
+                        <p>Pagination Cursors: {paginationCursorsLabel}</p>
+                        <p>Pagination Cursor Rows: {paginationCursorRowsLabel}</p>
+                        <p>Fetch Calls: {fetchCallsLabel}</p>
+                        <p class="slds-text-title_caps slds-var-m-top_x-small">Daily (Org)</p>
+                        <p>Daily Standard Cursors: {dailyStandardCursorsLabel}</p>
+                        <p>Daily Pagination Cursors: {dailyPaginationCursorsLabel}</p>
+                        <p>Daily Cursor Rows: {dailyCursorRowsLabel}</p>
+                    </template>
+                    <template if:false={limitsInfo}>
+                        <p>Limits unavailable</p>
+                    </template>
+                </div>
+            </div>
         </div>
     </lightning-card>
 </template>

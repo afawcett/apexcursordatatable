@@ -85,6 +85,14 @@ lightning-card {
         0 0 var(--apex-cursor-demo-glow-lg) var(--apex-cursor-demo-shadow-accent);
 }
 
+.info-panels {
+    align-items: stretch;
+}
+
+.info-panel {
+    height: 100%;
+}
+
 @media (max-width: 768px) {
     .infinite-symbol {
         font-size: var(--apex-cursor-demo-symbol-size-mobile);
