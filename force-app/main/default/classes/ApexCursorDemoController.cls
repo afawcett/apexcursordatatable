@@ -47,10 +47,9 @@ public with sharing class ApexCursorDemoController {
 
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
             result.cursor = cursor;
-            // Fetch the next batch from the current offset.
-            result.records = cursor.fetch(offset, Math.min(batchSize, cursor.getNumRecords() - offset));
-            result.offset = offset + result.records.size();
             result.totalRecords = cursor.getNumRecords();
+            result.records = result.totalRecords > offset ? cursor.fetch(offset, Math.min(batchSize, result.totalRecords - offset)) : new List<Account>();
+            result.offset = offset + result.records.size();
             result.hasMore = result.offset < result.totalRecords;
             result.usingSessionCache = usingSessionCache;
             result.limitsInfo = buildCursorLimitsInfo();
@@ -99,14 +98,13 @@ public with sharing class ApexCursorDemoController {
             }
 
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
-            // Fetch the next page from the current start index.
-            Database.CursorFetchResult fetchResult = paginationCursor.fetchPage(start, Math.min(pageSize, paginationCursor.getNumRecords() - start));
             result.paginationCursor = paginationCursor;
-            result.records = fetchResult.getRecords();
-            result.offset = fetchResult.getNextIndex();
             result.totalRecords = paginationCursor.getNumRecords();
+            Database.CursorFetchResult fetchResult = result.totalRecords > start ? paginationCursor.fetchPage(start, Math.min(pageSize, result.totalRecords - start)) : null;
+            result.records = fetchResult?.getRecords() ?? new List<Account>();
+            result.offset = fetchResult?.getNextIndex() ?? start;
+            result.deletedRows = fetchResult?.getNumDeletedRecords() ?? 0;
             result.hasMore = result.offset < result.totalRecords;
-            result.deletedRows = fetchResult.getNumDeletedRecords();
             result.usingSessionCache = usingSessionCache;
             result.limitsInfo = buildCursorLimitsInfo();
             return result;
