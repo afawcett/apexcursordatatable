@@ -48,13 +48,18 @@
             <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                 <div class="slds-box slds-theme_info info-panel">
                     <h4 class="slds-text-heading_small slds-var-m-bottom_x-small">Debug Info</h4>
-                    <p>Loaded Records: {records.length}</p>
-                    <p>Total Records: {totalRecords}</p>
-                    <p>Has More: {hasMore}</p>
-                    <p>Cursor Type: {cursorType === 'pagination' ? 'Pagination Cursor' : 'Standard Cursor'}</p>
-                    <p>Using Session Cache: {usingSessionCache}</p>
-                    <template if:true={isPagination}>
-                        <p>Deleted Rows Skipped: {deletedRows}</p>
+                    <template if:true={debugInfo}>
+                        <p>Loaded Records: {debugInfo.loadedRecords}</p>
+                        <p>Total Records: {debugInfo.totalRecords}</p>
+                        <p>Has More: {debugInfo.hasMore}</p>
+                        <p>Cursor Type: {debugInfo.cursorTypeLabel}</p>
+                        <p>Using Session Cache: {debugInfo.usingSessionCache}</p>
+                        <template if:true={debugInfo.isPagination}>
+                            <p>Deleted Rows Skipped: {debugInfo.deletedRows}</p>
+                        </template>
+                    </template>
+                    <template if:false={debugInfo}>
+                        <p>Debug info unavailable</p>
                     </template>
                 </div>
             </div>
