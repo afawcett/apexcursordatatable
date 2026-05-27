@@ -13,16 +13,16 @@ global with sharing class ApexCursorDemoController {
     /**
      * Loads the next batch of Account records using a standard Apex cursor.
      *
-     * @param request Cursor, offset, batch size, and session-cache mode.
+     * @param request Cursor, offset, and batch size.
+     * @param useSessionCache true = session cache, false = LWC-held cursor, null = auto-detect from session.
      * @return Page of records, updated cursor state, and current limit usage.
      */
     @AuraEnabled(cacheable=false)
-    public static LoadMoreRecordsResult loadMoreRecords(LoadMoreRequest request) {
+    public static LoadMoreRecordsResult loadMoreRecords(LoadMoreRequest request, Boolean useSessionCache) {
         try {
             Database.Cursor cursor = request.cursor;
             Integer offset = request.offset == null ? 0 : request.offset;
             Integer batchSize = request.batchSize == null ? DEFAULT_PAGE_SIZE : request.batchSize;
-            Boolean useSessionCache = request.useSessionCache;
             // null means auto: use session cache when a cursor is already stored for this user session.
             useSessionCache = useSessionCache != null ? useSessionCache : Cache.Session.get(SESSION_STANDARD_CURSOR_KEY) != null;
             Boolean usingSessionCache = false;
@@ -63,16 +63,16 @@ global with sharing class ApexCursorDemoController {
      * Loads the next batch of Account records using a pagination cursor.
      * Pagination cursors track deleted rows and expose fetchPage for index-based paging.
      *
-     * @param request Pagination cursor, start index, page size, and session-cache mode.
+     * @param request Pagination cursor, start index, and page size.
+     * @param useSessionCache true = session cache, false = LWC-held cursor, null = auto-detect from session.
      * @return Page of records, updated cursor state, deleted-row count, and current limit usage.
      */
     @AuraEnabled(cacheable=false)
-    public static LoadMoreRecordsResult loadMoreRecordsWithPagination(LoadMoreRequest request) {
+    public static LoadMoreRecordsResult loadMoreRecordsWithPagination(LoadMoreRequest request, Boolean useSessionCache) {
         try {
             Database.PaginationCursor paginationCursor = request.paginationCursor;
             Integer start = request.start == null ? 0 : request.start;
             Integer pageSize = request.pageSize == null ? DEFAULT_PAGE_SIZE : request.pageSize;
-            Boolean useSessionCache = request.useSessionCache;
             // null means auto: use session cache when a cursor is already stored for this user session.
             useSessionCache = useSessionCache != null ? useSessionCache : Cache.Session.get(SESSION_PAGINATION_CURSOR_KEY) != null;
             Boolean usingSessionCache = false;
@@ -150,7 +150,6 @@ global with sharing class ApexCursorDemoController {
         @AuraEnabled public Integer start;
         @AuraEnabled public Integer batchSize;
         @AuraEnabled public Integer pageSize;
-        @AuraEnabled public Boolean useSessionCache;
     }
 
     /** AuraEnabled response for a single infinite-scroll page load. */

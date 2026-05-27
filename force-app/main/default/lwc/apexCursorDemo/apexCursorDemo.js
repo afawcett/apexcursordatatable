@@ -156,18 +156,18 @@ export default class ApexCursorDemo extends LightningElement {
                 request: {
                     paginationCursor: this.useSessionCache === true ? null : this.paginationCursor,
                     start: this.offset,
-                    pageSize: PAGE_SIZE,
-                    useSessionCache: this.useSessionCache
-                }
+                    pageSize: PAGE_SIZE
+                },
+                useSessionCache: this.useSessionCache
             });
         }
         return loadMoreRecords({
             request: {
                 cursor: this.useSessionCache === true ? null : this.cursor,
                 offset: this.offset,
-                batchSize: PAGE_SIZE,
-                useSessionCache: this.useSessionCache
-            }
+                batchSize: PAGE_SIZE
+            },
+            useSessionCache: this.useSessionCache
         });
     }
 
