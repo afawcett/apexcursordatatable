@@ -20,6 +20,12 @@ Thumbs.db
 *.log
 debug.log
 
+# Generated import data
+data/*.csv
+
+# Node deps for optional dev scripts (scripts/listen-adaptive-chunk-events.mjs)
+scripts/node_modules/
+
 # Temporary files
 .tmp/
 *.tmp

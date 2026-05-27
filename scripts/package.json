@@ -1,0 +1,9 @@
+{
+  "name": "apexcursordatatable-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "faye": "^1.4.0",
+    "jsforce": "^3.6.3"
+  }
+}

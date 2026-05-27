@@ -1,0 +1,74 @@
+<template>
+    <lightning-card title="Reporting Drill-Down" icon-name="utility:chart">
+        <div class="slds-p-around_medium">
+            <div class="toolbar slds-m-bottom_medium">
+                <lightning-combobox
+                    label="Product"
+                    value={product}
+                    options={productOptions}
+                    onchange={handleProductChange}
+                    class="product-picker"
+                ></lightning-combobox>
+                <lightning-button
+                    label="Refresh"
+                    title="Rebuild session pagination cursor and chart data"
+                    onclick={handleRefresh}
+                    disabled={isLoading}
+                    class="slds-m-left_small"
+                ></lightning-button>
+            </div>
+
+            <template lwc:if={error}>
+                <div class="slds-text-color_error slds-m-bottom_small">{error}</div>
+            </template>
+
+            <template lwc:if={isChartReady}>
+                <div class="chart-shell">
+                    <canvas lwc:dom="manual" class="chart-canvas"></canvas>
+                    <div
+                        class="brush-layer"
+                        onmousedown={handleBrushMouseDown}
+                        onmousemove={handleBrushMouseMove}
+                        onmouseup={handleBrushMouseUp}
+                        onmouseleave={handleBrushMouseLeave}
+                    >
+                        <template lwc:if={hasBrushSelection}>
+                            <div class="brush-shade" style={brushShadeStyle}></div>
+                            <div
+                                class="brush-handle brush-handle-left"
+                                style={brushHandleLeftStyle}
+                                data-handle="left"
+                                onmousedown={handleHandleMouseDown}
+                            ></div>
+                            <div
+                                class="brush-handle brush-handle-right"
+                                style={brushHandleRightStyle}
+                                data-handle="right"
+                                onmousedown={handleHandleMouseDown}
+                            ></div>
+                        </template>
+                    </div>
+                </div>
+                <template lwc:if={chartStatus}>
+                    <p class="slds-text-body_small slds-m-top_x-small chart-status">{chartStatus}</p>
+                </template>
+                <template lwc:if={selectionSummary}>
+                    <p class="slds-text-body_small slds-m-top_x-small selection-summary">{selectionSummary}</p>
+                </template>
+            </template>
+            <template lwc:else>
+                <lightning-spinner alternative-text="Loading chart" size="medium"></lightning-spinner>
+            </template>
+
+            <template lwc:if={detailRows.length}>
+                <p class="slds-text-body_small slds-m-top_medium slds-m-bottom_x-small">{detailStatus}</p>
+                <lightning-datatable
+                    key-field="rowKey"
+                    data={detailRows}
+                    columns={columns}
+                    hide-checkbox-column
+                ></lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>

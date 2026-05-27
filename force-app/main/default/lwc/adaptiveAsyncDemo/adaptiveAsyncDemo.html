@@ -1,0 +1,52 @@
+<template>
+    <lightning-card title="Adaptive Async" icon-name="utility:sync">
+        <div class="slds-p-around_medium">
+            <div class="toolbar slds-m-bottom_medium">
+                <lightning-button
+                    label="Start run"
+                    variant="brand"
+                    onclick={handleStart}
+                    disabled={isRunning}
+                ></lightning-button>
+                <span class="slds-m-left_medium slds-text-body_small">{demoOrderLabel}</span>
+            </div>
+
+            <template lwc:if={error}>
+                <div class="slds-text-color_error slds-m-bottom_small">{error}</div>
+            </template>
+
+            <template lwc:if={runId}>
+                <div class="run-summary slds-m-bottom_small">
+                    <span class="slds-text-body_small">Run: {runId}</span>
+                    <span class="slds-m-left_medium slds-text-body_small">{progressLabel}</span>
+                </div>
+                <lightning-progress-bar
+                    value={progressPercent}
+                    size="large"
+                    variant={progressVariant}
+                    class="slds-m-bottom_medium"
+                ></lightning-progress-bar>
+            </template>
+
+            <template lwc:if={isChartReady}>
+                <div class="chart-shell">
+                    <canvas lwc:dom="manual" class="chart-canvas"></canvas>
+                </div>
+                <p class="slds-text-body_small slds-m-top_x-small chart-status">{chartStatus}</p>
+            </template>
+            <template lwc:elseif={isRunning}>
+                <lightning-spinner alternative-text="Waiting for chunk events" size="medium"></lightning-spinner>
+            </template>
+
+            <template lwc:if={hasEvents}>
+                <p class="slds-text-body_small slds-m-top_medium slds-m-bottom_x-small">{tableStatus}</p>
+                <lightning-datatable
+                    key-field="rowKey"
+                    data={eventRows}
+                    columns={columns}
+                    hide-checkbox-column
+                ></lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>

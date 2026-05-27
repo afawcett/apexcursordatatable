@@ -1,0 +1,27 @@
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.run-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.chart-shell {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.chart-status {
+    color: var(--slds-g-color-neutral-base-50, #706e6b);
+}

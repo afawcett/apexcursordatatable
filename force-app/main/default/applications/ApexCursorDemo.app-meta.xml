@@ -13,5 +13,7 @@
     <label>Apex Cursor Demo</label>
     <navType>Standard</navType>
     <tabs>InfiniteLoading</tabs>
+    <tabs>ReportingDrillingDown</tabs>
+    <tabs>AdaptiveAsync</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

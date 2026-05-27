@@ -1,0 +1,61 @@
+.toolbar {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.product-picker {
+    min-width: 12rem;
+}
+
+.chart-shell {
+    position: relative;
+    height: 360px;
+    width: 100%;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.brush-layer {
+    position: absolute;
+    inset: 0;
+    cursor: crosshair;
+}
+
+.brush-shade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: rgba(1, 118, 211, 0.2);
+    border-left: 2px solid #0176d3;
+    border-right: 2px solid #0176d3;
+    pointer-events: none;
+}
+
+.brush-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: #0176d3;
+    cursor: ew-resize;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+/* Handles sit outside the shade; shaded borders mark the inclusive date range. */
+.brush-handle-left {
+    transform: translateX(-100%);
+}
+
+.brush-handle-right {
+    transform: translateX(0);
+}
+
+.chart-status,
+.selection-summary {
+    color: #3e3e3c;
+}
