@@ -1,5 +1,12 @@
 <template>
     <lightning-card title="Infinite Loading" icon-name="standard:account">
+        <lightning-button
+            slot="actions"
+            label="Refresh"
+            icon-name="utility:refresh"
+            disabled={isLoading}
+            onclick={handleRefresh}>
+        </lightning-button>
         <div class="slds-var-m-bottom_medium slds-var-p-left_medium">
             <lightning-radio-group
                 label="Cursor Type"
@@ -22,7 +29,7 @@
                 data={records}
                 onloadmore={onLoadMoreRecords}
                 columns={columns}
-                enable-infinite-loading={hasMore}
+                enable-infinite-loading={allowInfiniteLoading}
                 hide-checkbox-column
                 show-row-number-column>
             </lightning-datatable>
@@ -44,9 +51,9 @@
                     <p>Loaded Records: {records.length}</p>
                     <p>Total Records: {totalRecords}</p>
                     <p>Has More: {hasMore}</p>
-                    <p>Cursor Type: {cursorTypeLabel}</p>
+                    <p>Cursor Type: {cursorType === 'pagination' ? 'Pagination Cursor' : 'Standard Cursor'}</p>
                     <p>Using Session Cache: {usingSessionCache}</p>
-                    <template if:true={usePaginationCursors}>
+                    <template if:true={isPagination}>
                         <p>Deleted Rows Skipped: {deletedRows}</p>
                     </template>
                 </div>
@@ -56,15 +63,15 @@
                     <h4 class="slds-text-heading_small slds-var-m-bottom_x-small">Limits Info</h4>
                     <template if:true={limitsInfo}>
                         <p class="slds-text-title_caps slds-var-m-top_x-small">Transaction</p>
-                        <p>Standard Cursors: {standardCursorsLabel}</p>
-                        <p>Standard Cursor Rows: {standardCursorRowsLabel}</p>
-                        <p>Pagination Cursors: {paginationCursorsLabel}</p>
-                        <p>Pagination Cursor Rows: {paginationCursorRowsLabel}</p>
-                        <p>Fetch Calls: {fetchCallsLabel}</p>
+                        <p>Standard Cursors: {limitsInfo.apexCursors}/{limitsInfo.limitApexCursors}</p>
+                        <p>Standard Cursor Rows: {limitsInfo.apexCursorRows}/{limitsInfo.limitApexCursorRows}</p>
+                        <p>Pagination Cursors: {limitsInfo.apexPaginationCursors}/{limitsInfo.limitApexPaginationCursors}</p>
+                        <p>Pagination Cursor Rows: {limitsInfo.apexPaginationCursorRows}/{limitsInfo.limitApexPaginationCursorRows}</p>
+                        <p>Fetch Calls: {limitsInfo.fetchCallsOnApexCursor}/{limitsInfo.limitFetchCallsOnApexCursor}</p>
                         <p class="slds-text-title_caps slds-var-m-top_x-small">Daily (Org)</p>
-                        <p>Daily Standard Cursors: {dailyStandardCursorsLabel}</p>
-                        <p>Daily Pagination Cursors: {dailyPaginationCursorsLabel}</p>
-                        <p>Daily Cursor Rows: {dailyCursorRowsLabel}</p>
+                        <p>Daily Standard Cursors: {limitsInfo.dailyApexCursors}/{limitsInfo.limitDailyApexCursors}</p>
+                        <p>Daily Pagination Cursors: {limitsInfo.dailyApexPaginationCursors}/{limitsInfo.limitDailyApexPaginationCursors}</p>
+                        <p>Daily Cursor Rows: {limitsInfo.dailyApexCursorRows}/{limitsInfo.limitDailyApexCursorRows}</p>
                     </template>
                     <template if:false={limitsInfo}>
                         <p>Limits unavailable</p>

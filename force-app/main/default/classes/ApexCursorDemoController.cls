@@ -1,9 +1,23 @@
+/**
+ * Apex controller for the apexCursorDemo LWC infinite-scroll datatable.
+ * Demonstrates standard Database.Cursor and Database.PaginationCursor paging,
+ * optional session-cache storage, and cursor limit reporting.
+ */
 public with sharing class ApexCursorDemoController {
     private static final String SESSION_STANDARD_CURSOR_KEY = 'apexCursorDemoStandard';
     private static final String SESSION_PAGINATION_CURSOR_KEY = 'apexCursorDemoPagination';
     private static final String ACCOUNT_SOQL =
         'SELECT Id, Name, Industry, Type, BillingCity, Phone FROM Account WHERE Name LIKE \'TEST%\' ORDER BY Name';
 
+    /**
+     * Loads the next batch of Account records using a standard Apex cursor.
+     *
+     * @param cursor Cursor from the prior response; ignored when useSessionCache is true.
+     * @param offset Row index to fetch from.
+     * @param batchSize Maximum rows to return.
+     * @param useSessionCache true = session cache, false = LWC-held cursor, null = auto-detect from session.
+     * @return Page of records, updated cursor state, and current limit usage.
+     */
     @AuraEnabled(cacheable=false)
     public static LoadMoreRecordsResult loadMoreRecords(
         Database.Cursor cursor,
@@ -12,9 +26,11 @@ public with sharing class ApexCursorDemoController {
         Boolean useSessionCache
     ) {
         try {
+            // null means auto: use session cache when a cursor is already stored for this user session.
             useSessionCache = useSessionCache != null ? useSessionCache : Cache.Session.get(SESSION_STANDARD_CURSOR_KEY) != null;
             Boolean usingSessionCache = false;
             if (useSessionCache == true) {
+                // Cursor lives in Cache.Session so it survives across Apex transactions.
                 cursor = (Database.Cursor) Cache.Session.get(SESSION_STANDARD_CURSOR_KEY);
                 if (cursor == null) {
                     cursor = Database.getCursor(ACCOUNT_SOQL, AccessLevel.USER_MODE);
@@ -22,6 +38,7 @@ public with sharing class ApexCursorDemoController {
                 }
                 usingSessionCache = true;
             } else {
+                // Explicit off: clear session and rely on the cursor serialized back to the LWC.
                 Cache.Session.remove(SESSION_STANDARD_CURSOR_KEY);
                 if (cursor == null) {
                     cursor = Database.getCursor(ACCOUNT_SOQL, AccessLevel.USER_MODE);
@@ -30,6 +47,7 @@ public with sharing class ApexCursorDemoController {
 
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
             result.cursor = cursor;
+            // Fetch the next batch from the current offset.
             result.records = cursor.fetch(offset, Math.min(batchSize, cursor.getNumRecords() - offset));
             result.offset = offset + result.records.size();
             result.totalRecords = cursor.getNumRecords();
@@ -43,6 +61,16 @@ public with sharing class ApexCursorDemoController {
         }
     }
 
+    /**
+     * Loads the next batch of Account records using a pagination cursor.
+     * Pagination cursors track deleted rows and expose fetchPage for index-based paging.
+     *
+     * @param paginationCursor Cursor from the prior response; ignored when useSessionCache is true.
+     * @param start Row index to fetch from.
+     * @param pageSize Maximum rows to return.
+     * @param useSessionCache true = session cache, false = LWC-held cursor, null = auto-detect from session.
+     * @return Page of records, updated cursor state, deleted-row count, and current limit usage.
+     */
     @AuraEnabled(cacheable=false)
     public static LoadMoreRecordsResult loadMoreRecordsWithPagination(
         Database.PaginationCursor paginationCursor,
@@ -51,9 +79,11 @@ public with sharing class ApexCursorDemoController {
         Boolean useSessionCache
     ) {
         try {
+            // null means auto: use session cache when a cursor is already stored for this user session.
             useSessionCache = useSessionCache != null ? useSessionCache : Cache.Session.get(SESSION_PAGINATION_CURSOR_KEY) != null;
             Boolean usingSessionCache = false;
             if (useSessionCache == true) {
+                // Cursor lives in Cache.Session so it survives across Apex transactions.
                 paginationCursor = (Database.PaginationCursor) Cache.Session.get(SESSION_PAGINATION_CURSOR_KEY);
                 if (paginationCursor == null) {
                     paginationCursor = Database.getPaginationCursor(ACCOUNT_SOQL, AccessLevel.USER_MODE);
@@ -61,6 +91,7 @@ public with sharing class ApexCursorDemoController {
                 }
                 usingSessionCache = true;
             } else {
+                // Explicit off: clear session and rely on the cursor serialized back to the LWC.
                 Cache.Session.remove(SESSION_PAGINATION_CURSOR_KEY);
                 if (paginationCursor == null) {
                     paginationCursor = Database.getPaginationCursor(ACCOUNT_SOQL, AccessLevel.USER_MODE);
@@ -68,6 +99,7 @@ public with sharing class ApexCursorDemoController {
             }
 
             LoadMoreRecordsResult result = new LoadMoreRecordsResult();
+            // Fetch the next page from the current start index.
             Database.CursorFetchResult fetchResult = paginationCursor.fetchPage(start, Math.min(pageSize, paginationCursor.getNumRecords() - start));
             result.paginationCursor = paginationCursor;
             result.records = fetchResult.getRecords();
@@ -84,6 +116,10 @@ public with sharing class ApexCursorDemoController {
         }
     }
 
+    /**
+     * Captures transaction-scoped cursor limits and daily org-wide cursor limits
+     * for display in the demo UI.
+     */
     private static CursorLimitsInfo buildCursorLimitsInfo() {
         CursorLimitsInfo info = new CursorLimitsInfo();
         info.apexCursors = Limits.getApexCursors();
@@ -97,25 +133,21 @@ public with sharing class ApexCursorDemoController {
         info.fetchCallsOnApexCursor = Limits.getFetchCallsOnApexCursor();
         info.limitFetchCallsOnApexCursor = Limits.getLimitFetchCallsOnApexCursor();
 
+        // Daily limits are org-wide counters, not per-transaction.
         Map<String, System.OrgLimit> limitMap = OrgLimits.getMap();
         System.OrgLimit dailyCursorLimit = limitMap.get('DailyApexCursorLimit');
         System.OrgLimit dailyPaginationCursorLimit = limitMap.get('DailyApexPCursorLimit');
         System.OrgLimit dailyCursorRowsLimit = limitMap.get('DailyApexCursorRowsLimit');
-        if (dailyCursorLimit != null) {
-            info.dailyApexCursors = dailyCursorLimit.getValue();
-            info.limitDailyApexCursors = dailyCursorLimit.getLimit();
-        }
-        if (dailyPaginationCursorLimit != null) {
-            info.dailyApexPaginationCursors = dailyPaginationCursorLimit.getValue();
-            info.limitDailyApexPaginationCursors = dailyPaginationCursorLimit.getLimit();
-        }
-        if (dailyCursorRowsLimit != null) {
-            info.dailyApexCursorRows = dailyCursorRowsLimit.getValue();
-            info.limitDailyApexCursorRows = dailyCursorRowsLimit.getLimit();
-        }
+        info.dailyApexCursors = dailyCursorLimit?.getValue();
+        info.limitDailyApexCursors = dailyCursorLimit?.getLimit();
+        info.dailyApexPaginationCursors = dailyPaginationCursorLimit?.getValue();
+        info.limitDailyApexPaginationCursors = dailyPaginationCursorLimit?.getLimit();
+        info.dailyApexCursorRows = dailyCursorRowsLimit?.getValue();
+        info.limitDailyApexCursorRows = dailyCursorRowsLimit?.getLimit();
         return info;
     }
 
+    /** AuraEnabled response for a single infinite-scroll page load. */
     public class LoadMoreRecordsResult {
         @AuraEnabled public Database.Cursor cursor;
         @AuraEnabled public Database.PaginationCursor paginationCursor;
@@ -128,6 +160,7 @@ public with sharing class ApexCursorDemoController {
         @AuraEnabled public CursorLimitsInfo limitsInfo;
     }
 
+    /** Transaction and daily cursor limit counters returned with each page load. */
     public class CursorLimitsInfo {
         @AuraEnabled public Integer apexCursors;
         @AuraEnabled public Integer limitApexCursors;
