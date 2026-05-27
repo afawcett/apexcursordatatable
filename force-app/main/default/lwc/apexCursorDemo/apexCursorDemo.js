@@ -153,17 +153,21 @@ export default class ApexCursorDemo extends LightningElement {
     fetchNextPage() {
         if (this.cursorType === 'pagination') {
             return loadMoreRecordsWithPagination({
-                pageSize: PAGE_SIZE,
-                paginationCursor: this.useSessionCache === true ? null : this.paginationCursor,
-                start: this.offset,
-                useSessionCache: this.useSessionCache
+                request: {
+                    paginationCursor: this.useSessionCache === true ? null : this.paginationCursor,
+                    start: this.offset,
+                    pageSize: PAGE_SIZE,
+                    useSessionCache: this.useSessionCache
+                }
             });
         }
         return loadMoreRecords({
-            batchSize: PAGE_SIZE,
-            cursor: this.useSessionCache === true ? null : this.cursor,
-            offset: this.offset,
-            useSessionCache: this.useSessionCache
+            request: {
+                cursor: this.useSessionCache === true ? null : this.cursor,
+                offset: this.offset,
+                batchSize: PAGE_SIZE,
+                useSessionCache: this.useSessionCache
+            }
         });
     }
 
@@ -184,7 +188,8 @@ export default class ApexCursorDemo extends LightningElement {
         } else if (this.useSessionCache !== true) {
             this.cursor = result.cursor;
         }
-        this.records = [...this.records, ...this.withAccountUrls(result.records)];
+        const pageRecords = result.records ?? [];
+        this.records = [...this.records, ...this.withAccountUrls(pageRecords)];
         this.offset = result.offset;
         this.hasMore = result.hasMore;
         this.limitsInfo = result.limitsInfo;
