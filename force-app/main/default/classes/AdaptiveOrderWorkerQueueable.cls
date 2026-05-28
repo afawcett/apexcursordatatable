@@ -7,7 +7,7 @@
  * serializes the job instance (including {@code startIndex} and the cursor), so chained links keep
  * position without {@link Database.Stateful} — that interface is for Batch Apex only.
  */
-public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, System.Finalizer {
+public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Database.AllowsCallouts, System.Finalizer {
 
     /** Platform max rows per {@code Cursor.fetch} (same cap as pagination {@code fetchPage}). */
     private static final Integer MAX_CURSOR_FETCH_SIZE = 2000;
