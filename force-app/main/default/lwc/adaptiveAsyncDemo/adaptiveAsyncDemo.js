@@ -6,11 +6,17 @@ import startRun from '@salesforce/apex/AdaptiveAsyncController.startRun';
 import getDemoOrderCount from '@salesforce/apex/AdaptiveAsyncController.getDemoOrderCount';
 
 const CHANNEL = '/event/AdaptiveAsyncChunk__e';
+const ORDER_BY_OPTIONS = [
+    { label: 'External_Id__c', value: 'External_Id__c' },
+    { label: 'Shipping_Country__c', value: 'Shipping_Country__c' }
+];
 
 /**
  * Adaptive async demo: empApi chunk events drive progress bar, bar chart, and datatable.
  */
 export default class AdaptiveAsyncDemo extends LightningElement {
+    orderByField = 'External_Id__c';
+    orderByOptions = ORDER_BY_OPTIONS;
     demoOrderCount = 0;
     runId = null;
     totalOrders = 0;
@@ -117,6 +123,10 @@ export default class AdaptiveAsyncDemo extends LightningElement {
         }
     }
 
+    handleOrderByChange(event) {
+        this.orderByField = event.detail.value;
+    }
+
     async handleStart() {
         this.error = null;
         this.isRunning = true;
@@ -132,7 +142,7 @@ export default class AdaptiveAsyncDemo extends LightningElement {
         }
 
         try {
-            const info = await startRun();
+            const info = await startRun({ orderByField: this.orderByField });
             this.runId = info.runId;
             this.totalOrders = info.totalOrders;
             this.maxCalloutsPerChunk = info.maxCalloutsPerChunk ?? 100;
@@ -165,6 +175,8 @@ export default class AdaptiveAsyncDemo extends LightningElement {
                 planned: payload.Planned_Chunk_Size__c,
                 actual: payload.Actual_Processed__c,
                 callouts: payload.Predicted_Callouts__c,
+                calloutOrders: payload.Callout_Orders__c,
+                zeroCalloutOrders: payload.Zero_Callout_Orders__c,
                 success: payload.Success__c === true,
                 jobId: payload.Job_Id__c,
                 errorMessage: payload.Error_Message__c
@@ -192,7 +204,7 @@ export default class AdaptiveAsyncDemo extends LightningElement {
 
         const labels = this.chunkEvents.map((e) => `#${e.sequence}`);
         const values = this.chunkEvents.map((e) => e.actual);
-        const colors = this.chunkEvents.map((e) => this.colorForCallouts(e.callouts));
+        const colors = this.chunkEvents.map((e) => this.colorForChunk(e));
 
         if (this.chart) {
             this.chart.data.labels = labels;
@@ -250,14 +262,35 @@ export default class AdaptiveAsyncDemo extends LightningElement {
         });
     }
 
-    colorForCallouts(callouts) {
-        if (callouts >= 90) {
+    colorForChunk(evt) {
+        const calloutOrders = this.calloutOrderCount(evt);
+        const zeroCalloutOrders = this.zeroCalloutOrderCount(evt);
+
+        if (calloutOrders === 0) {
+            return '#2e844a';
+        }
+        if (zeroCalloutOrders === 0) {
             return '#ea001e';
         }
-        if (callouts >= 50) {
-            return '#fe9339';
+        return '#fe9339';
+    }
+
+    calloutOrderCount(evt) {
+        const explicit = Number(evt.calloutOrders);
+        if (Number.isFinite(explicit) && explicit >= 0) {
+            return explicit;
         }
-        return '#2e844a';
+        return Number(evt.callouts) || 0;
+    }
+
+    zeroCalloutOrderCount(evt) {
+        const explicit = Number(evt.zeroCalloutOrders);
+        if (Number.isFinite(explicit) && explicit >= 0) {
+            return explicit;
+        }
+        const actual = Number(evt.actual) || 0;
+        const callouts = Number(evt.callouts) || 0;
+        return Math.max(0, actual - callouts);
     }
 
     teardownSubscription() {

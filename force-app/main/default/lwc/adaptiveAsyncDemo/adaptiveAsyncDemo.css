@@ -5,6 +5,10 @@
     gap: 0.25rem;
 }
 
+.order-by-field {
+    min-width: 12rem;
+}
+
 .run-summary {
     display: flex;
     flex-wrap: wrap;

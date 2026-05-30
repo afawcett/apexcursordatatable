@@ -8,7 +8,16 @@
                     onclick={handleStart}
                     disabled={isRunning}
                 ></lightning-button>
-                <span class="slds-m-left_medium slds-text-body_small">{demoOrderLabel}</span>
+                <lightning-combobox
+                    class="order-by-field"
+                    label="Order cursor by"
+                    value={orderByField}
+                    options={orderByOptions}
+                    onchange={handleOrderByChange}
+                    disabled={isRunning}
+                    variant="label-hidden"
+                ></lightning-combobox>
+                <span class="slds-text-body_small">{demoOrderLabel}</span>
             </div>
 
             <template lwc:if={error}>

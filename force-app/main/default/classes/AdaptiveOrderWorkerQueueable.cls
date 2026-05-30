@@ -16,10 +16,13 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
     private final String runId;
     private Integer startIndex;
     private Integer sequence;
+    private Integer eventSequence;
     private final Integer totalRows;
 
     private Integer plannedChunkSize;
     private Integer predictedCallouts;
+    private Integer calloutOrders;
+    private Integer zeroCalloutOrders;
     private Boolean success;
     private String errorMessage;
     private Boolean runComplete;
@@ -35,6 +38,7 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
     public void execute(QueueableContext context) {
         // Publish chunk telemetry after this transaction commits (success or failure).
         System.attachFinalizer(this);
+        eventSequence = sequence;
 
         // Pack the next slice of cursor rows without exceeding Limits.getLimitCallouts().
         ExecuteScope scope = fetchChunk();
@@ -59,6 +63,8 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
         // Finalizer publishes these after each queueable transaction.
         plannedChunkSize = chunk.size();
         predictedCallouts = scope.predictedCallouts;
+        calloutOrders = scope.calloutOrders;
+        zeroCalloutOrders = scope.zeroCalloutOrders;
         success = true;
 
         // Cannot chain another job when the org queueable stack depth is exhausted.
@@ -87,10 +93,12 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
         EventBus.publish(
             new AdaptiveAsyncChunk__e(
                 Run_Id__c = runId,
-                Sequence__c = sequence,
+                Sequence__c = eventSequence,
                 Planned_Chunk_Size__c = plannedChunkSize,
                 Actual_Processed__c = plannedChunkSize,
                 Predicted_Callouts__c = predictedCallouts,
+                Callout_Orders__c = calloutOrders,
+                Zero_Callout_Orders__c = zeroCalloutOrders,
                 Job_Id__c = String.valueOf(context.getAsyncApexJobId()),
                 Success__c = success,
                 Error_Message__c = errorMessage,
@@ -122,7 +130,7 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
 
             for (Order row : (List<Order>) cursor.fetch(pos, batchSize)) {
                 // Predicted HTTP callouts for this row: digital = 0, USA = 0, non-USA = 1.
-                Integer rowCallouts = row.Digital__c == true ? 0 : (row.Shipping_Country__c != 'USA' ? 1 : 0);
+                Integer rowCallouts = rowCalloutsFor(row);
                 if (!scope.orders.isEmpty() && scope.predictedCallouts + rowCallouts > calloutBudget) {
                     return scope;
                 }
@@ -132,6 +140,11 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
                 }
                 scope.orders.add(row);
                 scope.predictedCallouts += rowCallouts;
+                if (rowCallouts == 0) {
+                    scope.zeroCalloutOrders++;
+                } else {
+                    scope.calloutOrders++;
+                }
                 pos++;
             }
         }
@@ -145,5 +158,11 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
     private class ExecuteScope {
         List<Order> orders = new List<Order>();
         Integer predictedCallouts = 0;
+        Integer calloutOrders = 0;
+        Integer zeroCalloutOrders = 0;
+    }
+
+    private static Integer rowCalloutsFor(Order row) {
+        return row.Digital__c == true ? 0 : (row.Shipping_Country__c != 'USA' ? 1 : 0);
     }
 }
