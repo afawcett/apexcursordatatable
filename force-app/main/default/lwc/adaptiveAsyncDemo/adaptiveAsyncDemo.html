@@ -1,22 +1,23 @@
 <template>
     <lightning-card title="Adaptive Async" icon-name="utility:sync">
         <div class="slds-p-around_medium">
-            <div class="toolbar slds-m-bottom_medium">
+            <div class="slds-grid slds-grid_vertical-align-center slds-wrap slds-gutters_x-small slds-m-bottom_medium">
                 <lightning-button
                     label="Start run"
                     variant="brand"
                     onclick={handleStart}
                     disabled={isRunning}
                 ></lightning-button>
-                <lightning-combobox
-                    class="order-by-field"
-                    label="Order cursor by"
+                <div class="slds-col slds-grow-none slds-size_medium">
+                    <lightning-combobox
+                        label="Order cursor by"
                     value={orderByField}
                     options={orderByOptions}
                     onchange={handleOrderByChange}
                     disabled={isRunning}
                     variant="label-hidden"
-                ></lightning-combobox>
+                    ></lightning-combobox>
+                </div>
                 <span class="slds-text-body_small">{demoOrderLabel}</span>
             </div>
 
@@ -25,7 +26,7 @@
             </template>
 
             <template lwc:if={runId}>
-                <div class="run-summary slds-m-bottom_small">
+                <div class="slds-grid slds-grid_vertical-align-center slds-wrap slds-m-bottom_small">
                     <span class="slds-text-body_small">Run: {runId}</span>
                     <span class="slds-m-left_medium slds-text-body_small">{progressLabel}</span>
                 </div>
@@ -38,8 +39,8 @@
             </template>
 
             <template lwc:if={isChartReady}>
-                <div class="chart-shell">
-                    <canvas lwc:dom="manual" class="chart-canvas"></canvas>
+                <div class="chart-shell slds-is-relative slds-size_full">
+                    <canvas lwc:dom="manual" class="chart-canvas slds-is-absolute"></canvas>
                 </div>
                 <p class="slds-text-body_small slds-m-top_x-small chart-status">{chartStatus}</p>
             </template>

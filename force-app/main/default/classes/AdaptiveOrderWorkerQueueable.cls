@@ -27,6 +27,12 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
     private String errorMessage;
     private Boolean runComplete;
 
+    /**
+     * @description Creates a worker for one chunk of the adaptive async run.
+     * @param runId Correlates platform events with the LWC run.
+     * @param cursor Shared cursor opened by {@link AdaptiveAsyncController}.
+     * @param sequence One-based chunk sequence for telemetry.
+     */
     public AdaptiveOrderWorkerQueueable(String runId, Database.Cursor cursor, Integer sequence) {
         this.runId = runId;
         this.cursor = cursor;
@@ -35,6 +41,10 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
         this.totalRows = cursor.getNumRecords();
     }
 
+    /**
+     * @description Processes the next cursor chunk and chains another job when needed.
+     * @param context Queueable context for this execution.
+     */
     public void execute(QueueableContext context) {
         // Publish chunk telemetry after this transaction commits (success or failure).
         System.attachFinalizer(this);
@@ -82,6 +92,10 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
         }
     }
 
+    /**
+     * @description Publishes chunk telemetry after the queueable transaction commits.
+     * @param context Finalizer context for the parent queueable job.
+     */
     public void execute(FinalizerContext context) {
         if (context.getResult() == ParentJobResult.UNHANDLED_EXCEPTION) {
             success = false;
@@ -108,49 +122,39 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
     }
 
     /**
-     * Reads forward from {@code startIndex}, adding orders until the chunk is full.
+     * @description Reads forward from {@code startIndex}, adding orders until the chunk is full.
      * Fetch batch size is capped by callout budget so we do not pull rows we will not pack.
+     * @return Orders and callout counts packed for this queueable execution.
      */
     private ExecuteScope fetchChunk() {
         ExecuteScope scope = new ExecuteScope();
         Integer calloutBudget = Limits.getLimitCallouts() - Limits.getCallouts();
         Integer pos = startIndex;
-
         while (pos < totalRows) {
             Integer remaining = totalRows - pos;
-            Integer batchSize = remaining;
-            if (scope.predictedCallouts >= calloutBudget) {
-                // Budget full: read one row at a time until we hit the next segment (zero callouts).
-                batchSize = 1;
-            } else {
-                // At most enough rows to exhaust remaining callout budget (+1 to detect overflow).
-                Integer calloutRowsLeft = calloutBudget - scope.predictedCallouts + 1;
-                batchSize = Math.min(MAX_CURSOR_FETCH_SIZE, Math.min(remaining, calloutRowsLeft));
-            }
-
+            Integer batchSize = scope.predictedCallouts >= calloutBudget ? 1 :
+                Math.min(MAX_CURSOR_FETCH_SIZE, Math.min(remaining, calloutBudget - scope.predictedCallouts + 1));
             for (Order row : (List<Order>) cursor.fetch(pos, batchSize)) {
-                // Predicted HTTP callouts for this row: digital = 0, USA = 0, non-USA = 1.
                 Integer rowCallouts = rowCalloutsFor(row);
-                if (!scope.orders.isEmpty() && scope.predictedCallouts + rowCallouts > calloutBudget) {
-                    return scope;
-                }
-                // Callout budget full: stop before the next zero-callout row (start of the following chunk).
-                if (scope.predictedCallouts >= calloutBudget && rowCallouts == 0) {
-                    return scope;
-                }
-                scope.orders.add(row);
-                scope.predictedCallouts += rowCallouts;
-                if (rowCallouts == 0) {
-                    scope.zeroCalloutOrders++;
+                Boolean withinCalloutBudget =
+                    scope.orders.isEmpty() || scope.predictedCallouts + rowCallouts <= calloutBudget;
+                Boolean stillInCalloutSegment =
+                    scope.predictedCallouts < calloutBudget || rowCallouts > 0;
+                if (withinCalloutBudget && stillInCalloutSegment) {
+                    scope.orders.add(row);
+                    scope.predictedCallouts += rowCallouts;
+                    scope.calloutOrders += rowCallouts;
+                    scope.zeroCalloutOrders += (1 - rowCallouts);
+                    pos++;
                 } else {
-                    scope.calloutOrders++;
+                    return scope;
                 }
-                pos++;
             }
         }
         return scope;
     }
 
+    /** @description Thrown when the org queueable chain depth limit is reached. */
     public class AdaptiveAsyncChainLimitException extends Exception {
     }
 

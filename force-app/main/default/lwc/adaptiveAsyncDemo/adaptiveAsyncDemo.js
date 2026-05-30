@@ -28,6 +28,8 @@ export default class AdaptiveAsyncDemo extends LightningElement {
     error = null;
     chartStatus = '';
 
+    chartRenderPending = false;
+
     chart;
     chartJsLoaded = false;
     subscription = null;
@@ -101,6 +103,18 @@ export default class AdaptiveAsyncDemo extends LightningElement {
         }
     }
 
+    renderedCallback() {
+        if (!this.chartRenderPending || !this.isChartReady) {
+            return;
+        }
+        const canvas = this.template.querySelector('canvas.chart-canvas');
+        if (!canvas || !window.Chart) {
+            return;
+        }
+        this.chartRenderPending = false;
+        this.renderChart();
+    }
+
     registerEmpErrorListener() {
         onError(() => {
             this.error = 'Platform event subscription error. Check permissions for AdaptiveAsyncChunk__e.';
@@ -135,6 +149,7 @@ export default class AdaptiveAsyncDemo extends LightningElement {
         this.processedTotal = 0;
         this.chunkEvents = [];
         this.isChartReady = false;
+        this.chartRenderPending = false;
         this.chartStatus = '';
         if (this.chart) {
             this.chart.destroy();
@@ -147,7 +162,7 @@ export default class AdaptiveAsyncDemo extends LightningElement {
             this.totalOrders = info.totalOrders;
             this.maxCalloutsPerChunk = info.maxCalloutsPerChunk ?? 100;
             this.isChartReady = true;
-            requestAnimationFrame(() => this.renderChart());
+            this.chartRenderPending = true;
         } catch (err) {
             this.error = this.messageFromError(err);
             this.isRunning = false;

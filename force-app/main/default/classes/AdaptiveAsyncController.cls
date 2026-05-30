@@ -10,11 +10,18 @@ public with sharing class AdaptiveAsyncController {
         'Shipping_Country__c'
     };
 
+    /**
+     * @description Starts an adaptive async run over demo orders and enqueues the first worker.
+     * @param orderByField Cursor ORDER BY field ({@code External_Id__c} or {@code Shipping_Country__c}).
+     * @return Run metadata for the LWC progress bar and empApi filter.
+     */
     @AuraEnabled
     public static RunInfo startRun(String orderByField) {
         String orderField = normalizeOrderByField(orderByField);
 
-        Integer totalOrders = [SELECT COUNT() FROM Order WHERE External_Id__c LIKE 'ADAPT-ORD-%'];
+        Integer totalOrders = [
+            SELECT COUNT() FROM Order WHERE External_Id__c LIKE 'ADAPT-ORD-%' WITH USER_MODE
+        ];
         if (totalOrders == 0) {
             throw new AuraHandledException(
                 'No demo orders. Run: node scripts/generate-adaptive-orders.mjs --load'
@@ -47,9 +54,13 @@ public with sharing class AdaptiveAsyncController {
         return orderByField;
     }
 
+    /**
+     * @description Returns the number of demo orders available for processing.
+     * @return Count of orders whose {@code External_Id__c} starts with {@code ADAPT-ORD-}.
+     */
     @AuraEnabled(cacheable=true)
     public static Integer getDemoOrderCount() {
-        return [SELECT COUNT() FROM Order WHERE External_Id__c LIKE 'ADAPT-ORD-%'];
+        return [SELECT COUNT() FROM Order WHERE External_Id__c LIKE 'ADAPT-ORD-%' WITH USER_MODE];
     }
 
     /** Returned to the LWC when a run starts (progress bar and empApi filter). */

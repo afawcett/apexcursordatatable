@@ -1,29 +1,9 @@
-.toolbar {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-}
-
-.order-by-field {
-    min-width: 12rem;
-}
-
-.run-summary {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
 .chart-shell {
-    position: relative;
-    height: 320px;
-    width: 100%;
+    height: var(--slds-g-sizing-15, 20rem);
 }
 
 .chart-canvas {
-    width: 100% !important;
-    height: 100% !important;
+    inset: 0;
 }
 
 .chart-status {
