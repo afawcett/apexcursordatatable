@@ -7,7 +7,7 @@ import shutil
 import sys
 from pathlib import Path
 
-PRES = Path(__file__).resolve().parent
+PRES = Path(__file__).resolve().parent.parent
 SRC = PRES / "src"
 SLIDES = SRC / "ppt/slides"
 SLIDE_RELS = SLIDES / "_rels"

@@ -5,7 +5,7 @@ from __future__ import annotations
 import html
 from pathlib import Path
 
-PRES = Path(__file__).resolve().parent
+PRES = Path(__file__).resolve().parent.parent
 SLIDE = PRES / "src/ppt/slides/slide5.xml"
 
 TITLE = "Usecases for Apex Cursors"
