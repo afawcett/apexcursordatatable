@@ -4,7 +4,7 @@ set -euo pipefail
 
 PRES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -z "${DECK_BASENAME:-}" ]]; then
-  DECK_BASENAME="Scaling Apex and LWC with Apex Cursors - London's Calling Presentation Deck 2026"
+  DECK_BASENAME="lc26-apex-cursors"
 fi
 PPTX="${PRES_DIR}/${DECK_BASENAME}.pptx"
 PDF="${PRES_DIR}/${DECK_BASENAME}.pdf"

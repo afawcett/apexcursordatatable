@@ -10,8 +10,8 @@ docs/presentation/
   README.md
   py/                     # slide generator scripts
   templateslides/         # named slide XML templates (by layout style)
-  *.pptx                  # built deck
-  *.pdf                   # built export
+  lc26-apex-cursors.pptx  # built deck (default DECK_BASENAME)
+  lc26-apex-cursors.pdf   # built export + landing page slides link
   screenshots/            # UI captures for demo slides
   src/                    # unpacked OOXML (after unpack)
 ```
@@ -64,9 +64,11 @@ Requires `rsvg-convert` (`brew install librsvg`).
 | Script | Slide(s) |
 |--------|----------|
 | `py/update-usecases-slide.py` | 5 — Use cases |
-| `py/update-highlights-slide.py` | 7, 9, 11 — Demo highlights |
-| `py/update-limits-slide.py` | 12 — Limits table |
-| `py/update-tips-slide.py` | 13 — Tips & Tricks |
+| `py/update-highlights-slide.py` | 7, 9, 11 — Demo summaries |
+| `py/update-usage-best-practices-slide.py` | 12 — Usage Best Practices (3×2 code grid) |
+| `py/update-limits-slide.py` | 13 — Limits table |
+| `py/update-tips-slide.py` | 14 — Tips & Tricks |
+| `py/update-qa-slide.py` | 15 — Q&A + GitHub QR code |
 | `py/restructure-outline.py` | Rebuild deck outline (one-off) |
 | `py/add-dataset-access-slide.py` | 2 — Dataset access diagram |
 | `py/insert-sql-slide-at-3.py` | 3–4 — Cursor overview diagrams |
@@ -74,13 +76,23 @@ Requires `rsvg-convert` (`brew install librsvg`).
 
 Run from `docs/presentation/` (scripts resolve paths relative to that directory).
 
+## Usage Best Practices slide
+
+Regenerate the 3×2 code sample grid (slide 12). Inserts a new slide slot on first run if Limits is still at slide 12:
+
+```bash
+python3 py/update-usage-best-practices-slide.py && ./build-presentation.sh build
+```
+
+Edit `PRACTICES` in `py/update-usage-best-practices-slide.py` (label + code lines per cell).
+
 ## Demo screenshots
 
 UI captures live under `screenshots/` and are copied into `src/ppt/media/` for embedding (e.g. `demo1-virtual-datatable.png` slide 6, `demo2-reporting-drilldown.png` slide 8, `demo3-adaptive-async.png` slide 10).
 
 ## Tips and Tricks slide
 
-Regenerate the 2×3 tip card grid (slide 13):
+Regenerate the 2×3 tip card grid (slide 14):
 
 ```bash
 python3 py/update-tips-slide.py && ./build-presentation.sh build
@@ -88,9 +100,9 @@ python3 py/update-tips-slide.py && ./build-presentation.sh build
 
 Edit `TIPS` in `py/update-tips-slide.py` (emoji, title, body, card colours).
 
-## Demo Highlights slides
+## Demo summary slides
 
-Regenerate highlights slides (3 shadow code boxes + bullet panel):
+Regenerate demo summary slides (3 shadow code boxes + bullet panel):
 
 ```bash
 python3 py/update-highlights-slide.py        # all demos
@@ -103,13 +115,23 @@ Edit `DEMOS` in `py/update-highlights-slide.py` (code snippets and bullets per d
 
 ## Limits slide
 
-Regenerate the 3-column limits table (slide 12):
+Regenerate the 3-column limits table (slide 13):
 
 ```bash
 python3 py/update-limits-slide.py && ./build-presentation.sh build
 ```
 
-Edit `LIMIT_ROWS` and `INFO_NOTES` in `py/update-limits-slide.py`.
+Edit `LIMIT_SECTIONS` and `INFO_NOTES` in `py/update-limits-slide.py`.
+
+## Q&A slide
+
+Regenerate Q&A slide with GitHub repo QR code (slide 15). Requires `qrencode` (`brew install qrencode`):
+
+```bash
+python3 py/update-qa-slide.py && ./build-presentation.sh build
+```
+
+Set `GITHUB_URL` in `py/update-qa-slide.py` to change the encoded link.
 
 ## Template slides
 

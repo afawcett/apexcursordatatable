@@ -51,7 +51,7 @@ CARD_SHADOW = (
 
 DEMOS: dict[int, dict] = {
     1: {
-        "title": "Demo 1: Highlights",
+        "title": "Demo 1: Virtual Data Table Summary",
         "slide": 7,
         "code_boxes": [
             {
@@ -88,7 +88,7 @@ DEMOS: dict[int, dict] = {
         ],
     },
     2: {
-        "title": "Demo 2: Highlights",
+        "title": "Demo 2: Interactive Reporting and Drilldown Summary",
         "slide": 9,
         "code_boxes": [
             {
@@ -128,7 +128,7 @@ DEMOS: dict[int, dict] = {
         ],
     },
     3: {
-        "title": "Demo 3: Highlights",
+        "title": "Demo 3: Adaptive Async Summary",
         "slide": 11,
         "code_boxes": [
             {

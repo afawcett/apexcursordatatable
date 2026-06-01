@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Build slide 13: Tips and Tricks — compact 2x3 card grid with soft shadows."""
+"""Build slide 14: Tips and Tricks — compact 2x3 card grid with soft shadows."""
 from __future__ import annotations
 
 import html
 from pathlib import Path
 
 PRES = Path(__file__).resolve().parent.parent
-SLIDE = PRES / "src/ppt/slides/slide13.xml"
+SLIDE = PRES / "src/ppt/slides/slide14.xml"
 
 TITLE = "Tips and Tricks"
 SUBTITLE = "Practical patterns from the Apex Cursor demos"
