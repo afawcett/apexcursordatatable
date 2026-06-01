@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="680" viewBox="0 0 1100 680" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#891019"/>
+    </marker>
+  </defs>
+  <style>
+    .label { font-size: 12px; fill: #444; }
+    .title { font-size: 14px; font-weight: bold; fill: #891019; }
+    .subtitle { font-size: 12px; fill: #666; font-style: italic; }
+    .row { fill: #f5f5f5; stroke: #ccc; stroke-width: 1.5; }
+    .row-active { fill: #fde8e8; stroke: #891019; stroke-width: 2; }
+    .row-fetched { fill: #e8f4ea; stroke: #3d7a4a; stroke-width: 1.5; }
+    .row-pending { fill: #eee; stroke: #bbb; stroke-width: 1.5; }
+    .sql-box { fill: #fafafa; stroke: #bbb; stroke-width: 1.5; }
+    .panel-box { fill: #f9f9f9; stroke: #ccc; stroke-width: 1.5; }
+    .access-box { fill: #fff8f8; stroke: #891019; stroke-width: 1.5; }
+    .step-box { fill: #fafafa; stroke: #ddd; stroke-width: 1; }
+    .sql { font-family: Menlo, Consolas, monospace; font-size: 11px; fill: #222; }
+    .sql-sm { font-family: Menlo, Consolas, monospace; font-size: 10px; fill: #444; }
+    .sql-kw { fill: #891019; font-weight: bold; }
+    .highlight { fill: none; stroke: #891019; stroke-width: 2.5; stroke-dasharray: 8 4; }
+    .note { font-size: 11px; fill: #555; }
+    .note-bold { font-size: 11px; fill: #891019; font-weight: bold; }
+    .scope-fill { fill: #fff5f5; stroke: none; }
+    .contrast-no { font-size: 10px; fill: #777; }
+    .contrast-yes { font-size: 10px; fill: #891019; font-weight: bold; }
+    .step-num { font-size: 11px; fill: #fff; font-weight: bold; }
+  </style>
+
+  <!-- ========== Section 1: timeline ========== -->
+  <text x="20" y="28" class="title">1. One declared result set - position moves along rows</text>
+  <line x1="50" y1="108" x2="560" y2="108" stroke="#999" stroke-width="2"/>
+  <rect x="50" y="68" width="88" height="40" rx="4" class="row"/>
+  <text x="94" y="93" text-anchor="middle" font-size="10" class="label">1-100</text>
+  <rect x="152" y="68" width="88" height="40" rx="4" class="row-fetched"/>
+  <text x="196" y="93" text-anchor="middle" font-size="10" class="label">101-200</text>
+  <text x="262" y="93" text-anchor="middle" class="label">...</text>
+  <rect x="290" y="68" width="88" height="40" rx="4" class="row-active"/>
+  <text x="334" y="93" text-anchor="middle" font-size="10" class="label">201-300</text>
+  <rect x="392" y="68" width="88" height="40" rx="4" class="row"/>
+  <text x="436" y="93" text-anchor="middle" font-size="10" class="label">301-400</text>
+  <text x="502" y="93" class="label">...</text>
+  <rect x="147" y="61" width="236" height="54" rx="6" class="highlight"/>
+  <line x1="334" y1="113" x2="334" y2="138" stroke="#891019" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="348" y="155" class="note">current position after a FETCH</text>
+  <text x="275" y="178" text-anchor="middle" class="note">scope = rows from DECLARE ... SELECT only</text>
+
+  <rect x="620" y="58" width="460" height="98" rx="6" class="panel-box"/>
+  <text x="640" y="80" class="note-bold">Sections 2 and 3 = two views of the same idea</text>
+  <text x="640" y="100" class="label">2 = lifecycle statements (DECLARE ... CLOSE)</text>
+  <text x="640" y="120" class="label">3 = access patterns (how FETCH moves in that scope)</text>
+  <text x="640" y="140" class="label">Different from OFFSET paging (new query per page)</text>
+
+  <!-- ========== Section 2: lifecycle SQL ========== -->
+  <text x="20" y="210" class="title">2. Lifecycle pattern (SQL statements)</text>
+  <text x="20" y="228" class="subtitle">Ordered steps the application executes</text>
+  <rect x="20" y="238" width="520" height="218" rx="6" class="sql-box"/>
+
+  <!-- Step 1 -->
+  <circle cx="38" cy="258" r="10" fill="#891019"/>
+  <text x="38" y="262" text-anchor="middle" class="step-num">1</text>
+  <text x="56" y="262" class="sql"><tspan class="sql-kw">DECLARE</tspan> c <tspan class="sql-kw">CURSOR FOR</tspan> &lt;select&gt;;</text>
+  <text x="56" y="278" class="sql-sm">Defines query scope</text>
+
+  <!-- Step 2 -->
+  <circle cx="38" cy="300" r="10" fill="#891019"/>
+  <text x="38" y="304" text-anchor="middle" class="step-num">2</text>
+  <text x="56" y="304" class="sql"><tspan class="sql-kw">OPEN</tspan> c;</text>
+  <text x="56" y="320" class="sql-sm">Before first row</text>
+
+  <!-- Step 3 -->
+  <circle cx="38" cy="342" r="10" fill="#891019"/>
+  <text x="38" y="346" text-anchor="middle" class="step-num">3</text>
+  <text x="56" y="346" class="sql"><tspan class="sql-kw">FETCH</tspan> ... <tspan class="sql-kw">FROM</tspan> c <tspan class="sql-kw">INTO</tspan> ...;  <tspan class="sql-sm">(repeat)</tspan></text>
+  <text x="56" y="362" class="sql-sm">NEXT, PRIOR, ABSOLUTE...</text>
+
+  <!-- Step 4-5 -->
+  <circle cx="38" cy="384" r="10" fill="#891019"/>
+  <text x="38" y="388" text-anchor="middle" class="step-num">4</text>
+  <text x="56" y="388" class="sql"><tspan class="sql-kw">CLOSE</tspan> c;</text>
+  <text x="56" y="404" class="sql-sm">Release resources</text>
+
+  <circle cx="38" cy="426" r="10" fill="#891019"/>
+  <text x="38" y="430" text-anchor="middle" class="step-num">5</text>
+  <text x="56" y="430" class="sql"><tspan class="sql-kw">DEALLOCATE</tspan> c;  <tspan class="sql-sm">(some products)</tspan></text>
+  <text x="56" y="446" class="sql-sm">Drop definition</text>
+
+  <!-- Example block -->
+  <rect x="280" y="248" width="248" height="198" rx="4" class="step-box"/>
+  <text x="292" y="266" class="note-bold">Example</text>
+  <text x="292" y="284" class="sql-sm"><tspan class="sql-kw">DECLARE</tspan> account_cur <tspan class="sql-kw">CURSOR FOR</tspan></text>
+  <text x="300" y="300" class="sql-sm"><tspan class="sql-kw">SELECT</tspan> id, name <tspan class="sql-kw">FROM</tspan> accounts</text>
+  <text x="300" y="316" class="sql-sm"><tspan class="sql-kw">WHERE</tspan> active <tspan class="sql-kw">ORDER BY</tspan> id;</text>
+  <text x="292" y="336" class="sql-sm"><tspan class="sql-kw">OPEN</tspan> account_cur;</text>
+  <text x="292" y="352" class="sql-sm"><tspan class="sql-kw">FETCH NEXT FROM</tspan> account_cur ...</text>
+  <text x="292" y="368" class="sql-sm"><tspan class="sql-kw">CLOSE</tspan> account_cur;</text>
+
+  <!-- ========== Section 3: access patterns ========== -->
+  <text x="560" y="210" class="title">3. Access patterns (how you read rows)</text>
+  <text x="560" y="228" class="subtitle">FETCH orientations - same open cursor, move position in scope</text>
+  <rect x="560" y="238" width="520" height="218" rx="6" class="access-box"/>
+
+  <!-- Forward-only -->
+  <text x="576" y="258" class="note-bold">Forward-only cursor (typical default)</text>
+  <rect x="576" y="266" width="220" height="44" rx="4" fill="#e8f4ea" stroke="#3d7a4a"/>
+  <text x="590" y="286" class="sql-sm"><tspan class="sql-kw">FETCH NEXT</tspan>  - one row forward</text>
+  <text x="590" y="302" class="note">Most common in ETL / streaming loops</text>
+
+  <!-- Scrollable list -->
+  <text x="576" y="328" class="note-bold">Scrollable cursor (when supported)</text>
+  <rect x="576" y="336" width="488" height="58" rx="4" class="step-box"/>
+  <text x="588" y="354" class="sql-sm"><tspan class="sql-kw">FETCH NEXT</tspan> | <tspan class="sql-kw">PRIOR</tspan> | <tspan class="sql-kw">FIRST</tspan> | <tspan class="sql-kw">LAST</tspan></text>
+  <text x="588" y="372" class="sql-sm"><tspan class="sql-kw">FETCH ABSOLUTE</tspan> n | <tspan class="sql-kw">FETCH RELATIVE</tspan> n</text>
+  <text x="588" y="388" class="note">Jump relative to start or current position (product-dependent)</text>
+
+  <!-- Mini scope visual -->
+  <rect x="810" y="266" width="254" height="64" rx="4" class="scope-fill"/>
+  <rect x="810" y="266" width="254" height="64" rx="4" class="highlight"/>
+  <text x="937" y="282" text-anchor="middle" class="note-bold">position in scope</text>
+  <rect x="818" y="292" width="40" height="26" rx="2" class="row-fetched"/>
+  <text x="838" y="309" text-anchor="middle" font-size="8">0-99</text>
+  <rect x="864" y="292" width="40" height="26" rx="2" class="row-fetched"/>
+  <text x="884" y="309" text-anchor="middle" font-size="8">100-199</text>
+  <text x="918" y="309" text-anchor="middle" font-size="9" class="label">...</text>
+  <rect x="932" y="292" width="40" height="26" rx="2" class="row-active"/>
+  <text x="952" y="309" text-anchor="middle" font-size="8">200-299</text>
+  <rect x="978" y="292" width="40" height="26" rx="2" class="row-pending"/>
+  <text x="998" y="309" text-anchor="middle" font-size="8">300+</text>
+  <line x1="924" y1="324" x2="952" y2="324" stroke="#891019" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- NOT cursor paging -->
+  <text x="576" y="412" class="note-bold">Not a cursor access pattern:</text>
+  <rect x="576" y="418" width="235" height="32" rx="3" fill="#f0f0f0" stroke="#ccc"/>
+  <text x="588" y="438" class="contrast-no"><tspan class="sql-kw">SELECT</tspan> ... <tspan class="sql-kw">OFFSET</tspan> 20 <tspan class="sql-kw">FETCH</tspan> 10</text>
+
+  <rect x="825" y="418" width="239" height="32" rx="3" fill="#fde8e8" stroke="#891019"/>
+  <text x="837" y="432" class="contrast-no">new query each page - no held position</text>
+  <text x="837" y="446" class="contrast-yes">cursor: one OPEN, many FETCH in same scope</text>
+</svg>

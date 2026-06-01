@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="450" viewBox="0 0 1100 450" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#4a6fa5"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#5a7a3a"/>
+    </marker>
+  </defs>
+  <style>
+    .title { font-size: 13px; font-weight: bold; fill: #891019; }
+    .label { font-size: 11px; fill: #444; }
+    .label-sm { font-size: 10px; fill: #555; }
+    .client-box { fill: #e8f0fa; stroke: #4a6fa5; stroke-width: 2; }
+    .worker-box { fill: #f0f4e8; stroke: #5a7a3a; stroke-width: 2; }
+    .batch-box { fill: #f7faf4; stroke: #5a7a3a; stroke-width: 1.5; }
+    .dataset { fill: #f5f5f5; stroke: #999; stroke-width: 2; }
+    .row-mini { fill: #ddd; stroke: #bbb; stroke-width: 0.5; }
+    .page-slice { fill: #fde8e8; stroke: #891019; stroke-width: 2; }
+    .chunk { fill: #e8f4ea; stroke: #3d7a4a; stroke-width: 1.5; }
+    .callout { fill: #fff; stroke: #891019; stroke-width: 1.5; }
+    .warn { fill: #fff8e6; stroke: #c90; stroke-width: 1.5; }
+    .code { font-family: Menlo, Consolas, monospace; font-size: 9px; fill: #222; }
+    .code-kw { fill: #891019; font-weight: bold; }
+    .batch-step { font-family: Menlo, Consolas, monospace; font-size: 9px; fill: #3d5a2a; }
+    .batch-kw { fill: #5a7a3a; font-weight: bold; }
+  </style>
+
+  <!-- Dataset box geometry (narrower, centered) -->
+  <!-- DS_X=200 DS_W=700 DS_Y=288 DS_H=130 -->
+
+  <!-- ========== Browser column (centered with worker over dataset) ========== -->
+  <rect x="268" y="20" width="260" height="62" rx="8" class="client-box"/>
+  <text x="398" y="42" text-anchor="middle" class="title" fill="#4a6fa5">Interactive</text>
+  <text x="398" y="58" text-anchor="middle" class="label">User pages through UI</text>
+  <text x="398" y="72" text-anchor="middle" class="label-sm">Apex + SOQL per page</text>
+
+  <rect x="268" y="92" width="260" height="62" rx="6" class="callout"/>
+  <text x="280" y="110" class="code"><tspan class="code-kw">SELECT</tspan> ... <tspan class="code-kw">ORDER BY</tspan> Id</text>
+  <text x="280" y="124" class="code"><tspan class="code-kw">LIMIT</tspan> 50 <tspan class="code-kw">OFFSET</tspan> 150</text>
+  <text x="280" y="140" class="label-sm">New SOQL each page | rows 151-200</text>
+
+  <rect x="268" y="162" width="260" height="48" rx="6" class="warn"/>
+  <text x="280" y="180" class="label" font-weight="bold" fill="#a60">OFFSET maximum: 2,000 rows</text>
+  <text x="280" y="194" class="label-sm">offset &gt; 2,000: NUMBER_OUTSIDE_VALID_RANGE</text>
+
+  <text x="268" y="222" class="label-sm">page 1 OFFSET 0 | page 2 OFFSET 50 ... stops at 2000</text>
+
+  <!-- ========== Worker column ========== -->
+  <rect x="548" y="20" width="280" height="62" rx="8" class="worker-box"/>
+  <text x="688" y="42" text-anchor="middle" class="title" fill="#5a7a3a">Batch</text>
+  <text x="688" y="58" text-anchor="middle" class="label">Queueable, Batch, etc.</text>
+  <text x="688" y="72" text-anchor="middle" class="label-sm">Process in fixed chunks</text>
+
+  <rect x="548" y="92" width="280" height="100" rx="6" class="batch-box"/>
+  <text x="560" y="110" class="label" font-weight="bold" fill="#5a7a3a">Batch Apex lifecycle</text>
+  <text x="560" y="128" class="batch-step"><tspan class="batch-kw">start()</tspan> - QueryLocator (SOQL scope)</text>
+  <text x="560" y="146" class="batch-step"><tspan class="batch-kw">execute()</tspan> - List per chunk (repeats)</text>
+  <text x="560" y="164" class="batch-step"><tspan class="batch-kw">finish()</tspan> - cleanup</text>
+  <text x="560" y="182" class="label-sm">e.g. scope size 100</text>
+
+  <text x="688" y="206" text-anchor="middle" class="code"><tspan class="code-kw">LIMIT</tspan> 100 per chunk (pattern)</text>
+
+  <!-- ========== Dataset label (above box) ========== -->
+  <text x="550" y="276" text-anchor="middle" class="title">Large SOQL dataset (e.g. 100k+ rows)</text>
+
+  <!-- Dataset (shorter; inner boxes centered as one group) -->
+  <rect x="200" y="288" width="700" height="130" rx="8" class="dataset"/>
+
+  <!-- Arrows: jog outside stack (margin), then straight down onto dataset top -->
+  <path d="M 268 48 L 248 48 L 248 288" fill="none" stroke="#4a6fa5" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <path d="M 828 48 L 848 48 L 848 288" fill="none" stroke="#5a7a3a" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <rect x="218" y="298" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="308" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="318" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="328" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="338" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="348" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="358" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="368" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="378" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="388" width="664" height="5" rx="1" class="row-mini"/>
+  <rect x="218" y="398" width="664" height="5" rx="1" class="row-mini"/>
+
+  <!-- Page slice + chunks (centered group: 372..724 in 200..900 dataset) -->
+  <rect x="372" y="319" width="96" height="62" rx="4" class="page-slice"/>
+  <text x="420" y="336" text-anchor="middle" class="label-sm" fill="#891019">visible page</text>
+  <text x="420" y="350" text-anchor="middle" font-size="10" fill="#891019">LIMIT 50</text>
+  <text x="420" y="364" text-anchor="middle" font-size="10" fill="#891019">OFFSET n</text>
+
+  <rect x="484" y="320" width="54" height="28" rx="3" class="chunk"/>
+  <text x="511" y="338" text-anchor="middle" font-size="9">1-100</text>
+  <rect x="546" y="320" width="54" height="28" rx="3" class="chunk"/>
+  <text x="573" y="338" text-anchor="middle" font-size="9">101-200</text>
+  <rect x="608" y="320" width="54" height="28" rx="3" class="chunk"/>
+  <text x="635" y="338" text-anchor="middle" font-size="9">201-300</text>
+  <rect x="670" y="320" width="54" height="28" rx="3" class="chunk"/>
+  <text x="697" y="338" text-anchor="middle" font-size="9">301-400</text>
+  <rect x="515" y="356" width="54" height="28" rx="3" class="chunk"/>
+  <text x="542" y="374" text-anchor="middle" font-size="9">401-500</text>
+  <rect x="577" y="356" width="54" height="28" rx="3" class="chunk"/>
+  <text x="604" y="374" text-anchor="middle" font-size="9">501-600</text>
+  <rect x="639" y="356" width="54" height="28" rx="3" class="chunk"/>
+  <text x="666" y="374" text-anchor="middle" font-size="9">...</text>
+</svg>
