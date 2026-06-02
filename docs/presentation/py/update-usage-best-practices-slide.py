@@ -34,17 +34,24 @@ PRACTICES: list[dict] = [
         ],
     },
     {
-        "label": "Guard fetch size",
+        "label": "Guard number of records",
         "lines": [
-            [("remaining = c.getNumRecords()", "D4D4D4")],
-            [("  - offset;", "DCDCAA")],
-            [("fetchSize = remaining > 0", "D4D4D4")],
-            [("  ? Math.min(batchSize,", "DCDCAA")],
-            [("      remaining) : 0;", "CE9178")],
+            [
+                ("if (cursor.getNumRecords()", "DCDCAA"),
+                (" == ", "D4D4D4"),
+                ("0", "CE9178"),
+                (") {", "D4D4D4"),
+            ],
+            [
+                ("  ", "D4D4D4"),
+                ("return", "569CD6"),
+                (" result;", "D4D4D4"),
+            ],
+            [("}", "D4D4D4")],
         ],
         "notes": [
-            "Skip fetch when remaining is zero.",
-            "Avoids empty fetch(0, 0) batches.",
+            "Exit early when the result set is empty.",
+            "fetch(0, 0) can throw a GACK.",
         ],
     },
     {
@@ -58,7 +65,7 @@ PRACTICES: list[dict] = [
         ],
         "notes": [
             "Do not request rows past the result set end.",
-            "Critical for partial last pages and after deletes.",
+            "Critical for partial last pages.",
         ],
     },
     {
@@ -86,21 +93,31 @@ PRACTICES: list[dict] = [
         ],
         "notes": [
             "Cursors are Aura-serializable.",
-            "Return on @AuraEnabled result — no JSON hack.",
+            "Return on @AuraEnabled result.",
         ],
     },
     {
-        "label": "Surface limits in UI",
+        "label": "Check for latest security changes",
         "lines": [
-            [("Limits.getApexCursors()", "DCDCAA")],
-            [("  + '/' + Limits", "D4D4D4")],
-            [("  .getLimitApexCursors();", "DCDCAA")],
-            [("OrgLimits.getMap().get(", "DCDCAA")],
-            [("  'DailyApexCursorLimit');", "CE9178")],
+            [
+                ("[SELECT Id FROM Account", "CE9178"),
+            ],
+            [
+                ("  WHERE Id IN :ids", "CE9178"),
+            ],
+            [
+                ("  WITH USER_MODE];", "CE9178"),
+            ],
+            [
+                ("cursor = Database.getCursor(", "DCDCAA"),
+            ],
+            [
+                ("  soql, AccessLevel.USER_MODE);", "CE9178"),
+            ],
         ],
         "notes": [
-            "Limits.* for per-transaction governors.",
-            "OrgLimits.getMap() for rolling 24-hour org caps.",
+            "Fetch does not re-evaluate security, per Batch Apex. "
+            "If critical requery changes.",
         ],
     },
 ]

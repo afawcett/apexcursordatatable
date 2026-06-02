@@ -49,6 +49,13 @@ CARD_SHADOW = (
     '<a:alpha val="28000"/></a:srgbClr></a:outerShdw></a:effectLst>'
 )
 
+# Match docs/presentation README code sample color convention
+CODE_COLOR_TYPE = "569CD6"
+CODE_COLOR_CALL = "DCDCAA"
+CODE_COLOR_LITERAL = "CE9178"
+CODE_COLOR_TEXT = "D4D4D4"
+CODE_COLOR_PROMPT = "6A9955"
+
 DEMOS: dict[int, dict] = {
     1: {
         "title": "Demo 1: Virtual Data Table Summary",
@@ -56,35 +63,74 @@ DEMOS: dict[int, dict] = {
         "code_boxes": [
             {
                 "lines": [
-                    [("Database.Cursor", "4EC9B0"), (" c =", "D4D4D4")],
-                    [("  Database.getCursor(", "DCDCAA")],
-                    [("    soql,", "CE9178")],
-                    [("    AccessLevel.USER_MODE);", "CE9178")],
+                    [("cursor = Database.getCursor(", CODE_COLOR_CALL)],
+                    [("    ACCOUNT_SOQL,", CODE_COLOR_LITERAL)],
+                    [("    AccessLevel.USER_MODE);", CODE_COLOR_LITERAL)],
+                    [
+                        ("pageCursor =",
+                         CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("  Database.getPaginationCursor(",
+                         CODE_COLOR_CALL),
+                    ],
+                    [("    ACCOUNT_SOQL,", CODE_COLOR_LITERAL)],
+                    [("    AccessLevel.USER_MODE);", CODE_COLOR_LITERAL)],
                 ],
             },
             {
                 "lines": [
-                    [("List<Account> batch =", "D4D4D4")],
-                    [("  c.fetch(offset,", "DCDCAA")],
-                    [("    batchSize);", "CE9178")],
-                    [("result.hasMore =", "D4D4D4")],
-                    [("  offset < c.getNumRecords();", "CE9178")],
+                    [("if (pageCursor == null) {", CODE_COLOR_TEXT)],
+                    [
+                        ("  pageCursor = Database.getPaginationCursor(",
+                         CODE_COLOR_CALL),
+                    ],
+                    [
+                        ("    ACCOUNT_SOQL, AccessLevel.USER_MODE);",
+                         CODE_COLOR_LITERAL),
+                    ],
+                    [("  Cache.Session.put(", CODE_COLOR_CALL)],
+                    [
+                        ("    SESSION_PAGINATION_CURSOR_KEY,",
+                         CODE_COLOR_LITERAL),
+                    ],
+                    [("    pageCursor);", CODE_COLOR_TEXT)],
+                    [("}", CODE_COLOR_TEXT)],
                 ],
             },
             {
                 "lines": [
-                    [("const result = await", "569CD6")],
-                    [("  loadMoreRecords({", "DCDCAA")],
-                    [("    request, useSessionCache", "CE9178")],
-                    [("  });", "DCDCAA")],
+                    [
+                        ("Integer remaining = totalRecords - start;",
+                         CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("Integer fetchSize = remaining > 0",
+                         CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("    ? ", CODE_COLOR_TEXT),
+                        ("Math.min", CODE_COLOR_CALL),
+                        ("(pageSize, remaining) : 0;", CODE_COLOR_LITERAL),
+                    ],
+                    [
+                        ("fetchResult = fetchSize > 0",
+                         CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("    ? ", CODE_COLOR_TEXT),
+                        ("pageCursor.fetchPage", CODE_COLOR_CALL),
+                        ("(start, fetchSize)", CODE_COLOR_LITERAL),
+                    ],
+                    [("    : null;", CODE_COLOR_LITERAL)],
                 ],
             },
         ],
         "bullets": [
-            "Infinite scroll loads 50 rows at a time — no SOQL OFFSET",
-            "Cursor held in LWC state or Cache.Session across Apex calls",
-            "Live limit panel surfaces cursor, fetch, and row governor usage",
-            "Switch between standard and pagination cursor modes in one LWC",
+            "Standard Cursor or PaginationCursor — same ACCOUNT_SOQL, different paging APIs",
+            "Optional Cache.Session keeps the pagination cursor across user session",
+            "Page size is capped to remaining rows in the result set",
+            "Limits panel shows cursor, fetch, and daily governor usage",
         ],
     },
     2: {
@@ -92,31 +138,49 @@ DEMOS: dict[int, dict] = {
         "slide": 9,
         "code_boxes": [
             {
+                "prompt": "soql>",
                 "lines": [
-                    [("Database.PaginationCursor", "569CD6"), (" pc =", "D4D4D4")],
-                    [("  Database.getPaginationCursor(", "DCDCAA")],
-                    [("    soql,", "CE9178")],
-                    [("    AccessLevel.USER_MODE);", "CE9178")],
-                    [("Cache.Session.put(", "DCDCAA")],
-                    [("  sessionKey(product), pc);", "CE9178")],
+                    [
+                        ("SELECT", CODE_COLOR_TYPE),
+                        (" Id, EffectiveDate__c,", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("  Value__c, Product__c", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("FROM", CODE_COLOR_TYPE),
+                        (" UnitPriceObservation__c", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("WHERE", CODE_COLOR_TYPE),
+                        (" Product__c = :product", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("ORDER BY", CODE_COLOR_TYPE),
+                        (" EffectiveDate__c ", CODE_COLOR_TEXT),
+                        ("ASC", CODE_COLOR_TYPE),
+                    ],
                 ],
             },
             {
                 "lines": [
-                    [("fetchResult = pc.fetchPage(", "DCDCAA")],
-                    [("  dayIndex, 1);", "CE9178")],
-                    [("deletedRows =", "D4D4D4")],
-                    [("  fetchResult", "DCDCAA")],
-                    [("    .getNumDeletedRecords();", "CE9178")],
+                    [("Database.CursorFetchResult", CODE_COLOR_TYPE)],
+                    [("   midChunk =", CODE_COLOR_TEXT)],
+                    [
+                        ("      pageCursor.fetchPage(dayIndex, 1);",
+                         CODE_COLOR_CALL),
+                    ],
                 ],
             },
             {
                 "lines": [
-                    [("const detail = await", "569CD6")],
-                    [("  fetchDetailRange({", "DCDCAA")],
-                    [("    product,", "CE9178")],
-                    [("    startIndex, endIndex", "CE9178")],
-                    [("  });", "DCDCAA")],
+                    [("Database.CursorFetchResult", CODE_COLOR_TYPE)],
+                    [("    drilldownRecords =", CODE_COLOR_TEXT)],
+                    [("      pageCursor.fetchPage(", CODE_COLOR_CALL)],
+                    [
+                        ("          drillStart, drillSize);",
+                         CODE_COLOR_LITERAL),
+                    ],
                 ],
             },
         ],
@@ -144,29 +208,63 @@ DEMOS: dict[int, dict] = {
             },
             {
                 "lines": [
-                    [("for (Order row :", "569CD6")],
-                    [("  cursor.fetch(pos,", "DCDCAA")],
-                    [("    batchSize)) {", "CE9178")],
-                    [("  rowCallouts =", "D4D4D4")],
-                    [("    rowCalloutsFor(row);", "DCDCAA")],
-                    [("  // pack to callout budget", "6A9955")],
+                    [
+                        ("Integer ", CODE_COLOR_TYPE),
+                        ("rowCalloutsRequired =", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("   ", CODE_COLOR_TEXT),
+                        ("rowCalloutsFor", CODE_COLOR_CALL),
+                        ("(row);", CODE_COLOR_LITERAL),
+                    ],
+                    [
+                        ("Boolean ", CODE_COLOR_TYPE),
+                        ("canProcessRow =", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("   rowCalloutsRequired == ", CODE_COLOR_TEXT),
+                        ("0", CODE_COLOR_LITERAL),
+                        (" ||", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("       scope.", CODE_COLOR_TEXT),
+                        ("predictedCallouts", CODE_COLOR_TEXT),
+                        (" +", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("      rowCalloutsRequired <= ", CODE_COLOR_TEXT),
+                        ("calloutBudget;", CODE_COLOR_TEXT),
+                    ],
                 ],
             },
             {
                 "lines": [
-                    [("if (moreOrders) {", "569CD6")],
-                    [("  sequence++;", "DCDCAA")],
-                    [("  System.enqueueJob(this);", "DCDCAA")],
-                    [("}", "569CD6")],
-                    [("System.attachFinalizer(this);", "DCDCAA")],
+                    [
+                        ("if (", CODE_COLOR_TYPE),
+                        ("Limits", CODE_COLOR_TYPE),
+                        (".getFetchCallsOnApexCursor", CODE_COLOR_CALL),
+                        ("() >= ", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("    ", CODE_COLOR_TEXT),
+                        ("Limits", CODE_COLOR_TYPE),
+                        (".getLimitFetchCallsOnApexCursor", CODE_COLOR_CALL),
+                        ("()) {", CODE_COLOR_TEXT),
+                    ],
+                    [
+                        ("     ", CODE_COLOR_TEXT),
+                        ("return", CODE_COLOR_TYPE),
+                        (" scope;", CODE_COLOR_TEXT),
+                    ],
+                    [("}", CODE_COLOR_TEXT)],
                 ],
             },
         ],
         "bullets": [
             "One cursor opened in Apex and passed through chained queueable jobs",
             "Chunk size adapts to remaining HTTP callout budget per transaction",
-            "Finalizer publishes platform events after each chunk commits",
-            "Cursor position travels on the job — no Database.Stateful required",
+            "Track fetch limits dynamically via Limits.getFetchCallsOnApexCursor",
+            "Cursor position travels on the job state",
         ],
     },
 }
@@ -194,8 +292,10 @@ def code_line_para(
     )
 
 
-def terminal_body(lines: list[list[tuple[str, str]]]) -> str:
-    parts = [code_line_para([("apex>", "6A9955")], "80")]
+def terminal_body(
+    lines: list[list[tuple[str, str]]], *, prompt: str = "apex>"
+) -> str:
+    parts = [code_line_para([(prompt, CODE_COLOR_PROMPT)], "80")]
     for i, runs in enumerate(lines):
         is_last = i == len(lines) - 1
         parts.append(
@@ -222,6 +322,26 @@ def info_body(bullets: list[str]) -> str:
     return "".join(parts)
 
 
+def code_body_pr(
+    *,
+    anchor: str,
+    anchor_ctr: str,
+    t_ins: int,
+    b_ins: int,
+    l_ins: int,
+    r_ins: int,
+    wrap: str,
+    clip_overflow: bool,
+) -> str:
+    overflow = (
+        ' horzOverflow="clip" vertOverflow="clip"' if clip_overflow else ""
+    )
+    return (
+        f'anchorCtr="{anchor_ctr}" anchor="{anchor}" bIns="{b_ins}" '
+        f'lIns="{l_ins}" rIns="{r_ins}" tIns="{t_ins}" wrap="{wrap}"{overflow}'
+    )
+
+
 def shadow_box(
     shape_id: int,
     name: str,
@@ -238,8 +358,20 @@ def shadow_box(
     b_ins: int = CODE_PAD_B,
     l_ins: int = CODE_PAD_LR,
     r_ins: int = CODE_PAD_LR,
+    wrap: str = "square",
+    clip_overflow: bool = False,
 ) -> str:
-    return f"""<p:sp><p:nvSpPr><p:cNvPr id="{shape_id}" name="{name}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{x}" y="{y}"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val {ROUND_ADJ}"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="{bg}"/></a:solidFill><a:ln><a:noFill/></a:ln>{CARD_SHADOW}</p:spPr><p:txBody><a:bodyPr anchorCtr="{anchor_ctr}" anchor="{anchor}" bIns="{b_ins}" lIns="{l_ins}" rIns="{r_ins}" tIns="{t_ins}" wrap="square"><a:noAutofit/></a:bodyPr><a:lstStyle/>{body}</p:txBody></p:sp>"""
+    body_pr = code_body_pr(
+        anchor=anchor,
+        anchor_ctr=anchor_ctr,
+        t_ins=t_ins,
+        b_ins=b_ins,
+        l_ins=l_ins,
+        r_ins=r_ins,
+        wrap=wrap,
+        clip_overflow=clip_overflow,
+    )
+    return f"""<p:sp><p:nvSpPr><p:cNvPr id="{shape_id}" name="{name}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{x}" y="{y}"/><a:ext cx="{cx}" cy="{cy}"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val {ROUND_ADJ}"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="{bg}"/></a:solidFill><a:ln><a:noFill/></a:ln>{CARD_SHADOW}</p:spPr><p:txBody><a:bodyPr {body_pr}><a:noAutofit/></a:bodyPr><a:lstStyle/>{body}</p:txBody></p:sp>"""
 
 
 def number_badge(shape_id: int, box_x: int, box_y: int, number: int) -> str:
@@ -269,7 +401,9 @@ def build_slide(demo: dict) -> str:
                 CODE_BOX_W,
                 CODE_BOX_H,
                 "1E1E1E",
-                terminal_body(box["lines"]),
+                terminal_body(box["lines"], prompt=box.get("prompt", "apex>")),
+                wrap="none",
+                clip_overflow=True,
             )
         )
         sid += 1

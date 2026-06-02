@@ -36,7 +36,7 @@ OUTLINE_TITLES = [
     "Demo 3: Adaptive Async Summary",
     "Usage Best Practices",
     "Limits",
-    "Tips and Tricks",
+    "Other Use Cases",
 ]
 
 SLIDE_COUNT = 1 + len(OUTLINE_TITLES) + 2  # title + outline + qa + thank-you

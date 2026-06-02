@@ -9,13 +9,14 @@ PRES = Path(__file__).resolve().parent.parent
 SLIDE = PRES / "src/ppt/slides/slide5.xml"
 
 TITLE = "Usecases for Apex Cursors"
+SUBTITLE = "Optimial handling of larger data volumes"
 
 INTERACTIVE = {
     "heading": "Interactive",
     "color": "4A6FA5",
     "bullets": [
-        "Analyst large data view",
-        "Reporting and drilldown",
+        "Data Analyst tools and views",
+        "End user list views, reporting and drilldown",
         "Preview job records to process",
     ],
 }
@@ -25,7 +26,7 @@ BATCH = {
     "color": "5A7A3A",
     "bullets": [
         "Orchestrate process execution",
-        "Look ahead to optimize resource usage",
+        "Look ahead to optimize within limits",
         "Safer immutable record set",
     ],
 }
@@ -36,20 +37,26 @@ ARCHITECTURE = [
     "Bidirectional navigation",
 ]
 
+# Code sample syntax colors (keep consistent across deck updates)
+CODE_COLOR_TYPE = "569CD6"     # types/classes
+CODE_COLOR_CALL = "DCDCAA"     # method calls
+CODE_COLOR_LITERAL = "CE9178"  # literals/args
+CODE_COLOR_TEXT = "D4D4D4"     # neutral text/variables
+
 PAGINATION_CURSOR_LINES = [
-    [("Database.PaginationCursor", "569CD6"), (" c =", "D4D4D4")],
-    [("  Database.getPaginationCursor(", "DCDCAA")],
-    [("    soql, AccessLevel.USER_MODE);", "CE9178")],
-    [("Database.CursorFetchResult r =", "D4D4D4")],
-    [("  c.fetchPage(start, pageSize);", "DCDCAA")],
+    [("Database.PaginationCursor", CODE_COLOR_TYPE), (" c =", CODE_COLOR_TEXT)],
+    [("  Database.getPaginationCursor(", CODE_COLOR_CALL)],
+    [("    soql, AccessLevel.USER_MODE);", CODE_COLOR_LITERAL)],
+    [("Database.CursorFetchResult", CODE_COLOR_TYPE), (" r =", CODE_COLOR_TEXT)],
+    [("  c.fetchPage(start, pageSize);", CODE_COLOR_CALL)],
 ]
 
 STANDARD_CURSOR_LINES = [
-    [("Database.Cursor", "4EC9B0"), (" c =", "D4D4D4")],
-    [("  Database.getCursor(", "DCDCAA")],
-    [("    soql, AccessLevel.USER_MODE);", "CE9178")],
-    [("List<Account> batch =", "D4D4D4")],
-    [("  c.fetch(offset, pageSize);", "DCDCAA")],
+    [("Database.Cursor", CODE_COLOR_TYPE), (" c =", CODE_COLOR_TEXT)],
+    [("  Database.getCursor(", CODE_COLOR_CALL)],
+    [("    soql, AccessLevel.USER_MODE);", CODE_COLOR_LITERAL)],
+    [("List<Account>", CODE_COLOR_TYPE), (" batch =", CODE_COLOR_TEXT)],
+    [("  c.fetch(offset, pageSize);", CODE_COLOR_CALL)],
 ]
 
 # EMUs (slide 12188825 x 6858000; title placeholder ends ~999000)
@@ -73,6 +80,8 @@ _CONTENT_H = COL_USE_H + TERM_GAP + TERM_H + ARCH_GAP + ARCH_H
 TOP_Y = TITLE_BOTTOM + (SLIDE_CY - TITLE_BOTTOM - _CONTENT_H) // 2
 TERM_Y = TOP_Y + COL_USE_H + TERM_GAP
 ARCH_Y = TERM_Y + TERM_H + ARCH_GAP
+SUBTITLE_Y = 960_000
+SUBTITLE_H = 120_000
 
 
 def esc(text: str) -> str:
@@ -93,6 +102,15 @@ def heading_para_center(text: str, color: str, after_pts: str = "300") -> str:
 
 def bullet_para_center(text: str, before_pts: str = "200") -> str:
     return f"""<a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="ctr"><a:lnSpc><a:spcPct val="110000"/></a:lnSpc><a:spcBef><a:spcPts val="{before_pts}"/></a:spcBef><a:spcAft><a:spcPts val="0"/></a:spcAft><a:buClr><a:srgbClr val="891019"/></a:buClr><a:buSzPts val="1600"/><a:buChar char="•"/></a:pPr><a:r><a:rPr lang="en-US" sz="1800"/><a:t>{esc(text)}</a:t></a:r><a:endParaRPr/></a:p>"""
+
+
+def subtitle_body(text: str) -> str:
+    return (
+        f"""<a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l">"""
+        f"""<a:lnSpc><a:spcPct val="100000"/></a:lnSpc><a:buNone/></a:pPr>"""
+        f"""<a:r><a:rPr lang="en-US" sz="2000"><a:solidFill><a:srgbClr val="222222"/></a:solidFill></a:rPr>"""
+        f"""<a:t>{esc(text)}</a:t></a:r><a:endParaRPr/></a:p>"""
+    )
 
 
 def code_line_para(
@@ -192,6 +210,7 @@ def build_slide() -> str:
 {text_shape(121, "terminal-standard", RIGHT_X, TERM_Y, COL_W, TERM_H, terminal_body(STANDARD_CURSOR_LINES), anchor="t", fill="1E1E1E", border="5A7A3A", t_ins=TERM_PAD_T, b_ins=TERM_PAD_B, l_ins=TERM_PAD_LR, r_ins=TERM_PAD_LR)}
 {arch_band_rect(118)}
 {text_shape(119, "usecases-architecture", MARGIN_X, ARCH_Y, FULL_W, ARCH_H, architecture_body(), anchor="ctr", anchor_ctr="1")}
+{text_shape(122, "usecases-subtitle", MARGIN_X, SUBTITLE_Y, FULL_W, SUBTITLE_H, subtitle_body(SUBTITLE), anchor="t", l_ins=0, r_ins=0, t_ins=0, b_ins=0)}
 <p:sp><p:nvSpPr><p:cNvPr id="116" name="Google Shape;116;p14"/><p:cNvSpPr txBox="1"/><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr><p:spPr><a:xfrm><a:off x="338327" y="90720"/><a:ext cx="11515500" cy="908100"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr anchorCtr="0" anchor="b" bIns="0" lIns="0" spcFirstLastPara="1" rIns="0" wrap="square" tIns="0"><a:noAutofit/></a:bodyPr><a:lstStyle/><a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l"><a:lnSpc><a:spcPct val="100000"/></a:lnSpc><a:spcBef><a:spcPts val="0"/></a:spcBef><a:spcAft><a:spcPts val="0"/></a:spcAft><a:buClr><a:srgbClr val="891019"/></a:buClr><a:buSzPts val="3200"/><a:buFont typeface="Arial"/><a:buNone/></a:pPr><a:r><a:rPr lang="en-US"/><a:t>{title_esc}</a:t></a:r><a:endParaRPr/></a:p></p:txBody></p:sp></p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr><mc:AlternateContent><mc:Choice Requires="p14"><p:transition spd="slow" p14:dur="700"><p:fade/></p:transition></mc:Choice><mc:Fallback><p:transition spd="slow"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent></p:sld>
 """
 

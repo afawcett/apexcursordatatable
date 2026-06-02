@@ -59,6 +59,11 @@ diagrams/cursor-soql-overview.svg       # slide 4 - SOQL / Apex cursor
 
 Requires `rsvg-convert` (`brew install librsvg`).
 
+Rendering quality:
+
+- Diagram rasterization defaults to `DIAGRAM_RASTER_DPI=288` and `DIAGRAM_RASTER_SCALE=2` for sharper on-slide text/lines.
+- Override per build if needed, e.g. `DIAGRAM_RASTER_DPI=192 DIAGRAM_RASTER_SCALE=1 ./build-presentation.sh build`.
+
 ## Slide generator scripts (`py/`)
 
 | Script | Slide(s) |
@@ -67,7 +72,7 @@ Requires `rsvg-convert` (`brew install librsvg`).
 | `py/update-highlights-slide.py` | 7, 9, 11 — Demo summaries |
 | `py/update-usage-best-practices-slide.py` | 12 — Usage Best Practices (3×2 code grid) |
 | `py/update-limits-slide.py` | 13 — Limits table |
-| `py/update-tips-slide.py` | 14 — Tips & Tricks |
+| `py/update-tips-slide.py` | 14 — Other Use Cases |
 | `py/update-qa-slide.py` | 15 — Q&A + GitHub QR code |
 | `py/restructure-outline.py` | Rebuild deck outline (one-off) |
 | `py/add-dataset-access-slide.py` | 2 — Dataset access diagram |
@@ -75,6 +80,17 @@ Requires `rsvg-convert` (`brew install librsvg`).
 | `py/insert-slide.py` | Generic slide insert helper |
 
 Run from `docs/presentation/` (scripts resolve paths relative to that directory).
+
+## Code sample color convention
+
+Keep syntax highlighting consistent across all deck code samples:
+
+- **Types/classes**: `569CD6` (blue)
+- **Method calls**: `DCDCAA`
+- **Literals/args**: `CE9178`
+- **Neutral text/variables**: `D4D4D4`
+
+`py/update-usecases-slide.py` defines these as `CODE_COLOR_*` constants; reuse this palette in other slide scripts.
 
 ## Usage Best Practices slide
 
@@ -90,15 +106,17 @@ Edit `PRACTICES` in `py/update-usage-best-practices-slide.py` (label + code line
 
 UI captures live under `screenshots/` and are copied into `src/ppt/media/` for embedding (e.g. `demo1-virtual-datatable.png` slide 6, `demo2-reporting-drilldown.png` slide 8, `demo3-adaptive-async.png` slide 10).
 
-## Tips and Tricks slide
+For crisp screenshots, capture at higher resolution (recommended width `>= 1920px`) before copying into `screenshots/`.
 
-Regenerate the 2×3 tip card grid (slide 14):
+## Other Use Cases slide
+
+Regenerate the use-case card grid (slide 14; 2 columns, rows sized to `USE_CASES`):
 
 ```bash
 python3 py/update-tips-slide.py && ./build-presentation.sh build
 ```
 
-Edit `TIPS` in `py/update-tips-slide.py` (emoji, title, body, card colours).
+Edit `USE_CASES` in `py/update-tips-slide.py` (emoji, title, body, card colours).
 
 ## Demo summary slides
 

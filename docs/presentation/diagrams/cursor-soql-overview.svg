@@ -30,32 +30,32 @@
   </style>
 
   <!-- Section 1: SOQL result set timeline -->
-  <text x="20" y="28" class="title">1. One SOQL result set - position moves along rows</text>
-  <line x1="50" y1="108" x2="560" y2="108" stroke="#999" stroke-width="2"/>
-  <rect x="50" y="68" width="88" height="40" rx="4" class="row"/>
-  <text x="94" y="93" text-anchor="middle" font-size="10" class="label">1-100</text>
-  <rect x="152" y="68" width="88" height="40" rx="4" class="row-fetched"/>
-  <text x="196" y="93" text-anchor="middle" font-size="10" class="label">101-200</text>
-  <text x="262" y="93" text-anchor="middle" class="label">...</text>
-  <rect x="290" y="68" width="88" height="40" rx="4" class="row-active"/>
-  <text x="334" y="93" text-anchor="middle" font-size="10" class="label">201-300</text>
-  <rect x="392" y="68" width="88" height="40" rx="4" class="row"/>
-  <text x="436" y="93" text-anchor="middle" font-size="10" class="label">301-400</text>
-  <text x="502" y="93" class="label">...</text>
-  <rect x="147" y="61" width="236" height="54" rx="6" class="highlight"/>
-  <line x1="334" y1="113" x2="334" y2="138" stroke="#891019" stroke-width="2" marker-end="url(#arrow)"/>
-  <text x="348" y="155" class="note">current batch after fetch(offset, count)</text>
-  <text x="275" y="178" text-anchor="middle" class="note">scope = rows from getCursor(SOQL) only</text>
-
-  <rect x="620" y="58" width="460" height="98" rx="6" class="panel-box"/>
-  <text x="640" y="80" class="note-bold">Apex maps SQL cursor ideas to API calls</text>
-  <text x="640" y="100" class="label">2 = lifecycle (getCursor, fetch, hold state)</text>
-  <text x="640" y="120" class="label">3 = access patterns (offset batch vs fetchPage)</text>
-  <text x="640" y="140" class="label">Not [SELECT ...] loading all rows at once</text>
+  <text x="20" y="56" class="title">1. One SOQL result set - position moves along rows</text>
+  <line x1="50" y1="136" x2="1060" y2="136" stroke="#999" stroke-width="2"/>
+  <rect x="50" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="94" y="121" text-anchor="middle" font-size="10" class="label">1-87</text>
+  <rect x="152" y="96" width="88" height="40" rx="4" class="row-fetched"/>
+  <text x="196" y="121" text-anchor="middle" font-size="10" class="label">88-205</text>
+  <rect x="254" y="96" width="88" height="40" rx="4" class="row-active"/>
+  <text x="298" y="121" text-anchor="middle" font-size="10" class="label">206-298</text>
+  <rect x="356" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="400" y="121" text-anchor="middle" font-size="10" class="label">299-427</text>
+  <text x="486" y="121" text-anchor="middle" class="label">...</text>
+  <rect x="528" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="572" y="121" text-anchor="middle" font-size="10" class="label">1201-1348</text>
+  <rect x="630" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="674" y="121" text-anchor="middle" font-size="10" class="label">2401-2470</text>
+  <text x="740" y="121" class="label">...</text>
+  <rect x="766" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="810" y="121" text-anchor="middle" font-size="10" class="label">n-210</text>
+  <rect x="868" y="96" width="88" height="40" rx="4" class="row"/>
+  <text x="912" y="121" text-anchor="middle" font-size="10" class="label">n</text>
+  <text x="978" y="121" class="label">...</text>
+  <rect x="143" y="89" width="583" height="54" rx="6" class="highlight"/>
+  <line x1="298" y1="141" x2="298" y2="188" stroke="#891019" stroke-width="2" marker-end="url(#arrow)"/>
 
   <!-- Section 2: Apex lifecycle -->
   <text x="20" y="210" class="title">2. Lifecycle pattern (Apex API)</text>
-  <text x="20" y="228" class="subtitle">No DECLARE/OPEN/CLOSE - platform cursor over SOQL</text>
   <rect x="20" y="238" width="520" height="218" rx="6" class="api-box"/>
 
   <circle cx="38" cy="258" r="10" fill="#891019"/>
@@ -96,15 +96,14 @@
 
   <!-- Section 3: access patterns -->
   <text x="560" y="210" class="title">3. Access patterns (how you read rows)</text>
-  <text x="560" y="228" class="subtitle">Incremental reads inside one open SOQL scope</text>
   <rect x="560" y="238" width="520" height="218" rx="6" class="access-box"/>
 
-  <text x="576" y="258" class="note-bold">Database.Cursor (standard)</text>
+  <text x="576" y="258" class="note-bold">Database.Cursor</text>
   <rect x="576" y="266" width="248" height="44" rx="4" fill="#e8f4ea" stroke="#3d7a4a"/>
   <text x="590" y="286" class="api-sm"><tspan class="api-kw">fetch</tspan>(offset, count)</text>
   <text x="590" y="302" class="note">Forward by offset into scope (infinite scroll)</text>
 
-  <text x="576" y="328" class="note-bold">Database.PaginationCursor (GA)</text>
+  <text x="576" y="328" class="note-bold">Database.PaginationCursor</text>
   <rect x="576" y="336" width="248" height="44" rx="4" fill="#e8f4ea" stroke="#3d7a4a"/>
   <text x="590" y="356" class="api-sm"><tspan class="api-kw">fetchPage</tspan>(start, pageSize)</text>
   <text x="590" y="372" class="note">Page-oriented access; CursorFetchResult</text>
@@ -120,12 +119,4 @@
   <rect x="962" y="292" width="40" height="26" rx="2" class="row-active"/>
   <text x="982" y="309" text-anchor="middle" font-size="8">200-299</text>
   <text x="952" y="338" text-anchor="middle" class="note">fetch(200, 100) = rows 200-299</text>
-
-  <text x="576" y="412" class="note-bold">Not a SOQL cursor pattern:</text>
-  <rect x="576" y="418" width="235" height="32" rx="3" fill="#f0f0f0" stroke="#ccc"/>
-  <text x="588" y="438" class="contrast-no">List&lt;SObject&gt; = [SELECT ...]</text>
-
-  <rect x="825" y="418" width="239" height="32" rx="3" fill="#fde8e8" stroke="#891019"/>
-  <text x="837" y="432" class="contrast-no">all rows in heap at once</text>
-  <text x="837" y="446" class="contrast-yes">cursor: one SOQL scope, many fetches</text>
 </svg>

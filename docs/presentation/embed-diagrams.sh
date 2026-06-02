@@ -5,7 +5,8 @@ set -euo pipefail
 PRES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIAGRAMS="${PRES_DIR}/diagrams"
 MEDIA="${PRES_DIR}/src/ppt/media"
-DPI="${DIAGRAM_RASTER_DPI:-144}"
+DPI="${DIAGRAM_RASTER_DPI:-288}"
+SCALE="${DIAGRAM_RASTER_SCALE:-2}"
 
 if [[ ! -d "$DIAGRAMS" ]]; then
   exit 0
@@ -27,5 +28,5 @@ for svg in "${svgs[@]}"; do
   base="$(basename "$svg" .svg)"
   out="${MEDIA}/diagram-${base}.png"
   echo "diagram: ${svg##*/} -> ppt/media/$(basename "$out")"
-  rsvg-convert -d "$DPI" -p "$DPI" -b white -o "$out" "$svg"
+  rsvg-convert -z "$SCALE" -d "$DPI" -p "$DPI" -b white -o "$out" "$svg"
 done
