@@ -43,6 +43,7 @@ INFO_NOTES = [
     "Transaction limits apply to each Apex request; daily limits roll per org over 24 hours.",
     "Fetch calls and daily row counts are shared across standard and pagination cursors.",
     "Cursors expire like API query cursors — see API Query Cursor Limits in Salesforce Help.",
+    "Aggregate, subselect and virtual object queries are not supported.",
 ]
 
 SLIDE_CY = 6_858_000
@@ -52,7 +53,7 @@ TITLE_BOTTOM = 999_000
 BOTTOM_MARGIN = 220_000
 HEADER_GAP = 90_000
 INFO_GAP = 100_000
-INFO_H = 1_450_000
+INFO_H = 1_650_000
 INFO_PAD = 95_000
 ROUND_ADJ = 6000
 DATA_ROW_H = 335_000

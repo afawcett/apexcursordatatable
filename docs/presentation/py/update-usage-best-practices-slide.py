@@ -22,6 +22,7 @@ TITLE = "Usage Best Practices"
 PRACTICES: list[dict] = [
     {
         "label": "Stable ORDER BY",
+        "prompt": "soql>",
         "lines": [
             [("'SELECT ... FROM Account ", "CE9178")],
             [("  WHERE Name LIKE 'TEST%'", "CE9178")],
@@ -188,8 +189,10 @@ def code_line_para(
     )
 
 
-def terminal_body(lines: list[list[tuple[str, str]]]) -> str:
-    parts = [code_line_para([("apex>", "6A9955")], "60")]
+def terminal_body(
+    lines: list[list[tuple[str, str]]], *, prompt: str = "apex>"
+) -> str:
+    parts = [code_line_para([(prompt, "6A9955")], "60")]
     for i, runs in enumerate(lines):
         is_last = i == len(lines) - 1
         parts.append(
@@ -222,8 +225,15 @@ def label_shape(shape_id: int, x: int, y: int, text: str) -> str:
     return f"""<p:sp><p:nvSpPr><p:cNvPr id="{shape_id}" name="usage-label-{shape_id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{x}" y="{y}"/><a:ext cx="{CELL_W}" cy="{LABEL_H}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr><p:txBody><a:bodyPr anchor="b" anchorCtr="0" wrap="none"><a:noAutofit/></a:bodyPr><a:lstStyle/><a:p><a:pPr algn="l"><a:buNone/></a:pPr><a:r><a:rPr lang="en-US" sz="1550" b="1"><a:solidFill><a:srgbClr val="891019"/></a:solidFill></a:rPr><a:t>{t}</a:t></a:r><a:endParaRPr/></a:p></p:txBody></p:sp>"""
 
 
-def code_box(shape_id: int, x: int, y: int, lines: list[list[tuple[str, str]]]) -> str:
-    body = terminal_body(lines)
+def code_box(
+    shape_id: int,
+    x: int,
+    y: int,
+    lines: list[list[tuple[str, str]]],
+    *,
+    prompt: str = "apex>",
+) -> str:
+    body = terminal_body(lines, prompt=prompt)
     return f"""<p:sp><p:nvSpPr><p:cNvPr id="{shape_id}" name="usage-code-{shape_id}"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr><a:xfrm><a:off x="{x}" y="{y}"/><a:ext cx="{CELL_W}" cy="{CODE_H}"/></a:xfrm><a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val {ROUND_ADJ}"/></a:avLst></a:prstGeom><a:solidFill><a:srgbClr val="1E1E1E"/></a:solidFill><a:ln><a:noFill/></a:ln>{CARD_SHADOW}</p:spPr><p:txBody><a:bodyPr anchor="t" anchorCtr="0" wrap="square" lIns="{CODE_PAD_LR}" rIns="{CODE_PAD_LR}" tIns="{CODE_PAD_T}" bIns="{CODE_PAD_B}"><a:noAutofit/></a:bodyPr><a:lstStyle/>{body}</p:txBody></p:sp>"""
 
 
@@ -238,7 +248,15 @@ def grid_xml() -> str:
         parts.append(label_shape(sid, x, y, practice["label"]))
         sid += 1
         code_y = y + LABEL_H
-        parts.append(code_box(sid, x, code_y, practice["lines"]))
+        parts.append(
+            code_box(
+                sid,
+                x,
+                code_y,
+                practice["lines"],
+                prompt=practice.get("prompt", "apex>"),
+            )
+        )
         sid += 1
         info_y = code_y + CODE_H + INFO_GAP
         parts.append(info_box(sid, x, info_y, practice["notes"]))

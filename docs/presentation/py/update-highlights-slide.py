@@ -128,7 +128,7 @@ DEMOS: dict[int, dict] = {
         ],
         "bullets": [
             "Standard Cursor or PaginationCursor — same ACCOUNT_SOQL, different paging APIs",
-            "Optional Cache.Session keeps the pagination cursor across user session",
+            "Cache.Session keeps the pagination cursor between requests; session cache and cursors are per user",
             "Page size is capped to remaining rows in the result set",
             "Limits panel shows cursor, fetch, and daily governor usage",
         ],
