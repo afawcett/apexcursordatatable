@@ -123,7 +123,9 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
 
     /**
      * @description Reads forward from {@code startIndex}, adding orders until the chunk is full.
-     * Fetch batch size is capped by callout budget so we do not pull rows we will not pack.
+     * Each {@code cursor.fetch} pulls up to {@link #MAX_CURSOR_FETCH_SIZE} rows; packing still
+     * respects the HTTP callout budget while zero-callout orders can continue after it is full.
+     * Stops before {@code Limits.getLimitFetchCallsOnApexCursor()} is exhausted.
      * @return Orders and callout counts packed for this queueable execution.
      */
     private ExecuteScope fetchChunk() {
@@ -131,20 +133,21 @@ public with sharing class AdaptiveOrderWorkerQueueable implements Queueable, Dat
         Integer calloutBudget = Limits.getLimitCallouts() - Limits.getCallouts();
         Integer pos = startIndex;
         while (pos < totalRows) {
+            if (Limits.getFetchCallsOnApexCursor() >= Limits.getLimitFetchCallsOnApexCursor()) {
+                return scope;
+            }
             Integer remaining = totalRows - pos;
-            Integer batchSize = scope.predictedCallouts >= calloutBudget ? 1 :
-                Math.min(MAX_CURSOR_FETCH_SIZE, Math.min(remaining, calloutBudget - scope.predictedCallouts + 1));
+            Integer batchSize = Math.min(MAX_CURSOR_FETCH_SIZE, remaining);
             for (Order row : (List<Order>) cursor.fetch(pos, batchSize)) {
-                Integer rowCallouts = rowCalloutsFor(row);
-                Boolean withinCalloutBudget =
-                    scope.orders.isEmpty() || scope.predictedCallouts + rowCallouts <= calloutBudget;
-                Boolean stillInCalloutSegment =
-                    scope.predictedCallouts < calloutBudget || rowCallouts > 0;
-                if (withinCalloutBudget && stillInCalloutSegment) {
+                Integer rowCalloutsRequired = rowCalloutsFor(row);
+                Boolean canProcessRow = 
+                    rowCalloutsRequired == 0 || 
+                    scope.predictedCallouts + rowCalloutsRequired <= calloutBudget;
+                if (canProcessRow) {
                     scope.orders.add(row);
-                    scope.predictedCallouts += rowCallouts;
-                    scope.calloutOrders += rowCallouts;
-                    scope.zeroCalloutOrders += (1 - rowCallouts);
+                    scope.predictedCallouts += rowCalloutsRequired;
+                    scope.calloutOrders += rowCalloutsRequired;
+                    scope.zeroCalloutOrders += (1 - rowCalloutsRequired);
                     pos++;
                 } else {
                     return scope;
