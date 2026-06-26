@@ -1,6 +1,6 @@
 # Apex Cursor Demo
 
-Lightning demos for **Apex Cursors** (`Database.Cursor` and pagination cursors) with LWC: infinite scroll, reporting drill-down, and adaptive async chunking. Blog posts: [infinite scroll](https://andyinthecloud.com/2025/08/04/infinite-data-scrolling-with-apex-cursors-beta/) and [pagination cursors](https://andyinthecloud.com/2026/01/19/improved-infinite-data-scrolling-with-new-apex-pagination-cursors-ga/). Also see associated Londons Calling presentation [here](https://afawcett.github.io/landingpages/sessions/apex-cursors-lc26.html). 
+Lightning demos for **Apex Cursors** (`Database.Cursor` and pagination cursors) with LWC: infinite scroll, reporting drill-down, and adaptive async chunking. Blog posts: [infinite scroll](https://andyinthecloud.com/2025/08/04/infinite-data-scrolling-with-apex-cursors-beta/) and [pagination cursors](https://andyinthecloud.com/2026/01/19/improved-infinite-data-scrolling-with-new-apex-pagination-cursors-ga/). Also see associated Londons Calling presentation [here](https://afawcett.github.io/landingpages/sessions/apex-cursors-lc26.html) and Apex Hours presentation [here](http://localhost:8000/sessions/apex-cursors-apex-hours.html). 
 
 ## 🎯 Demo Overview
 
